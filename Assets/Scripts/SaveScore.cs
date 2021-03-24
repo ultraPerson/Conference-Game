@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 
-
-namespace Conference.Scoreboards
+namespace Conference.Characters
 {
-    [Serializable]
-    public class SaveScore
+    namespace Conference.Scoreboards
     {
-        public List<ScoreboardEntryData> scores = new List<ScoreboardEntryData>();
+        [Serializable]
+        public class SaveScore
+        {
+            public List<ScoreboardEntryData> scores = new List<ScoreboardEntryData>();
 
+        }
     }
 }

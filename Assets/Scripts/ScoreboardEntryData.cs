@@ -1,12 +1,15 @@
 ﻿using System;
 
-namespace Conference.Scoreboards
+namespace Conference.Characters
 {
-    [Serializable]
-
-    public struct ScoreboardEntryData
+    namespace Conference.Scoreboards
     {
-        public string name;
-        public int score;
+        [Serializable]
+
+        public struct ScoreboardEntryData
+        {
+            public string name;
+            public int score;
+        }
     }
 }

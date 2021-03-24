@@ -4,20 +4,22 @@ using UnityEngine.UI;
 using UnityEngine;
 using System;
 
-
-namespace Conference.Scoreboards
+namespace Conference.Characters
 {
-
-    
-    public class ScoreboardEntryUI : MonoBehaviour
+    namespace Conference.Scoreboards
     {
-        [SerializeField]public Text entryNameText = null;
-        [SerializeField]public Text entryScoreText = null;
 
-        public void Initialize(ScoreboardEntryData scoreboardEntryData)
+
+        public class ScoreboardEntryUI : MonoBehaviour
         {
-            entryNameText.text = scoreboardEntryData.name;
-            entryScoreText.text = scoreboardEntryData.score.ToString();
+            [SerializeField] public Text entryNameText = null;
+            [SerializeField] public Text entryScoreText = null;
+
+            public void Initialize(ScoreboardEntryData scoreboardEntryData)
+            {
+                entryNameText.text = scoreboardEntryData.name;
+                entryScoreText.text = scoreboardEntryData.score.ToString();
+            }
         }
     }
 }

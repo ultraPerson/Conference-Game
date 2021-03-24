@@ -8,6 +8,7 @@ public class Movement : MonoBehaviour
     public CharacterController charController;
     public float moveSpeed = 12f;
     public float gravity = -9.81f;
+    //public Animator animator;
 
     private float playerX;
     private float playerZ;
@@ -39,6 +40,8 @@ public class Movement : MonoBehaviour
         {
             velocity.y += gravity * Time.deltaTime;
         }
+        //float averageSpeed = (velocity.x * velocity.z) / 2;
+        //animator.SetFloat("Speed", averageSpeed);
 
     }
 }
