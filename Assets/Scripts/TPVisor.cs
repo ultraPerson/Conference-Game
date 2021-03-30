@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Cinemachine;
 
 namespace Conference.Characters
 {
@@ -23,22 +24,24 @@ namespace Conference.Characters
             //text component beneath PBG(points background)
             Text vPoints;
             //transform for TBG
-            RectTransform tBGTrans;
+            public RectTransform tBGTrans
+            { get; private set; }
             //transform for PBG
             RectTransform pBGTrans;
             //transform for vScan
-            RectTransform vTextTrans;
+           public  RectTransform vTextTrans
+            { get; private set; }
             //transform for vPoints
             RectTransform pTextTrans;
 
             public GameObject whatDefault;
-            public GameObject vText;
+            private GameObject vText;
             //text game object for points
-            public GameObject vScore;
-            public GameObject playerCanvas;
-            public GameObject tBG;
+            private GameObject vScore;
+            private GameObject playerCanvas;
+            private GameObject tBG;
             //image game object for PBG
-            public GameObject pBG;
+            private GameObject pBG;
             public int points = 0;
             public string playerName;
 
@@ -50,7 +53,8 @@ namespace Conference.Characters
                 private set;
             }
 
-            public Camera cam;//public
+            private Camera cam;
+            private CinemachineFreeLook camControl;
             private GameObject scoreHolder;
             private bool seeingNew = false;
             private float screenW = Screen.width;
@@ -62,6 +66,15 @@ namespace Conference.Characters
             private RaycastHit seen;
             private GameObject what;
             private Text whatDesc;
+
+            public GameObject chatUIPrefab;
+            private GameObject chatUIClone;
+            private ChatBehaviour chatBehaviour;
+            // private RectTransform cTextRTrans;
+            // private RectTransform cInputRTrans;
+            public bool chatOpen
+            { get; private set; }
+
             
             Scoreboard scoreboard;
             ScoreboardEntryData scoreData;
@@ -69,6 +82,26 @@ namespace Conference.Characters
             // Start is called before the first frame update
             void Start()
             {
+
+                chatUIClone = Instantiate(chatUIPrefab);
+
+                cam = Camera.main;
+                camControl = transform.GetChild(1).gameObject.GetComponent<CinemachineFreeLook>();
+                if(camControl != null){
+                    Debug.Log("camControl set");
+                }
+                playerCanvas = GameObject.Find("/Main Camera/VisorCanvas");
+                vText = GameObject.Find("/Main Camera/VisorCanvas/TextBG/VisorText");
+                vScore = GameObject.Find("/Main Camera/VisorCanvas/ScoreBG/VisorScore");
+                tBG = GameObject.Find("/Main Camera/VisorCanvas/TextBG");
+                pBG = GameObject.Find("/Main Camera/VisorCanvas/ScoreBG");
+
+                
+
+                chatOpen = false;
+                chatBehaviour = chatUIClone.GetComponent<ChatBehaviour>();
+               // cTextRTrans = chatBehaviour.chatText.GetComponent<RectTransform>();
+               // cInputRTrans = chatBehaviour.inputField.GetComponent < RectTransform > ();
                 scoreHolder = pBG.transform.GetChild(0).gameObject;
                 //maxDist = Mathf.Infinity;
                 layerMask = ~layerMask;
@@ -175,7 +208,26 @@ namespace Conference.Characters
                 }
 
                 WhatAmISeeing(what);
+                /*
+                if(chatOpen){
+                    Cursor.lockState = CursorLockMode.Confined;
+                } else Cursor.lockState = CursorLockMode.Locked;*/
 
+                if (Input.GetKeyDown(KeyCode.Quote))
+                {
+
+                    if(chatOpen){
+                        Cursor.lockState = CursorLockMode.None;
+                        Cursor.lockState = CursorLockMode.Confined;
+                        Cursor.visible = true;
+                    } else Cursor.lockState = CursorLockMode.Locked;
+
+                    chatOpen = !chatOpen;
+                    
+                    chatBehaviour.OpenChatUI(chatOpen);
+                    camControl.enabled = !chatOpen;
+                    
+                }
 
             }
 
@@ -209,7 +261,7 @@ namespace Conference.Characters
                 if (whatType == "NPC")
                 {
                     //NPCScript whatScript;
-                    Debug.Log("Yup, that's an NPC");
+                    //Debug.Log("Yup, that's an NPC");
                     string npcName = what.GetComponent<NPCScript>().nPCName;
                     bool met = what.GetComponent<NPCScript>().met;
 

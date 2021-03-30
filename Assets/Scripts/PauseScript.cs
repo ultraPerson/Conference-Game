@@ -12,6 +12,11 @@ public class PauseScript : MonoBehaviour
     [SerializeField] private bool isPaused;
     private bool talking = false;
     
+    void Start(){
+
+        pauseUI = GameObject.Find("/PauseCanvas");
+        visorCanvas = GameObject.Find("/Main Camera/VisorCanvas");
+    }
     
 
     private void Update()

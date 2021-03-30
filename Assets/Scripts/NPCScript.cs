@@ -23,10 +23,10 @@ namespace Conference.Characters
             public Camera thisCam;
             public bool met = false;
             public Canvas dialogueCanvas;
-            public Canvas mainCanvas;
+            private Canvas mainCanvas;//private
             public GameObject quizCanvas;
-            public GameObject pauseCtrl;
-            public GameObject tPCam;
+            private GameObject pauseCtrl;//private
+            private GameObject tPCam;//private
             public Sprite[] faces;
             public GameObject face;
             public bool animPlay
@@ -56,13 +56,24 @@ namespace Conference.Characters
     "Have you figured out that by clicking on an NPC- oh, wait...",
     };
 
+            void Start(){
+
+                mainCam = Camera.main;
+                mainCanvas = GameObject.Find("/Main Camera/VisorCanvas").GetComponent<Canvas>();
+                
+                tPCam = mainCam.gameObject;
+
+
+            }
+
 
 
             // Start is called before the first frame update
             void Awake()
             {
             
-                mainCam = Camera.main;
+                
+
                 thisCam.enabled = false;
                 //Debug.Log(dialogue.Length);
                 quizCanvas.SetActive(false);
@@ -279,9 +290,13 @@ namespace Conference.Characters
 
             void Update()
             {
+
+                if(pauseCtrl == null){
+                    pauseCtrl = GameObject.Find("Player(Clone)");
+                }
                 //Mathf.Clamp(dialoguePos, 0, dialogue.Length);
                 //NPC sightline
-                Vector3 targetDir = pauseCtrl.transform.position - transform.position;
+                /*Vector3 targetDir = pauseCtrl.transform.position - transform.position;
                 Debug.DrawLine(targetDir, transform.forward);
                 float playerAngle = Vector3.Angle(targetDir, transform.forward);
 
@@ -294,7 +309,7 @@ namespace Conference.Characters
                 {
                     seesYou = false;
                     Debug.Log(nPCName + " lost sight of you");
-                }
+                }*/
 
                 //NPC conversing and quiz rules
                 if (conversing)
