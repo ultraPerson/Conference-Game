@@ -31,6 +31,9 @@ namespace Conference.Characters
 
             public void AddEntry(ScoreboardEntryData scoreboardEntryData)
             {
+                if(savePath == null){
+                    savePath = "/highscores.json";
+                }
                 SaveScore savedScores = GetSavedScores();
                 bool scoreAdded = false;
 
@@ -88,12 +91,22 @@ namespace Conference.Characters
                     Destroy(child.gameObject);
 
                 }
+
                 foreach (ScoreboardEntryData score in savedScores.scores)
                 {
+
+                    
                     Instantiate(scoreboardEntryObj, highscoresHolderTransform).GetComponent<ScoreboardEntryUI>().Initialize(score);
                 }
 
+                UIOrganizer();
                 
+                
+            }
+
+            private void UIOrganizer()
+            {
+
                 for(int i = 0; i < highscoresHolderTransform.childCount; i++)
                 {
                    allScores = new GameObject[highscoresHolderTransform.childCount]; 
@@ -104,6 +117,8 @@ namespace Conference.Characters
 
                 }
 
+               
+
                 
                    foreach(GameObject scoreStats in allScores)
                     {
@@ -113,7 +128,7 @@ namespace Conference.Characters
                             scoreStats.transform.GetChild(1).GetComponent<RectTransform>().sizeDelta = new Vector2(highscoresHolderTransform.sizeDelta.x/2, highscoresHolderTransform.sizeDelta.y);
                         } else Debug.Log("FUCK");
                     }
-                
+
             }
 
 

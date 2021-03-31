@@ -292,7 +292,10 @@ namespace Conference.Characters
             {
 
                 if(pauseCtrl == null){
-                    pauseCtrl = GameObject.Find("Player(Clone)");
+                    if(GameObject.Find("Player"))
+                    {
+                        pauseCtrl = GameObject.Find("Player");
+                    } else pauseCtrl = GameObject.Find("Player(Clone)");
                 }
                 //Mathf.Clamp(dialoguePos, 0, dialogue.Length);
                 //NPC sightline

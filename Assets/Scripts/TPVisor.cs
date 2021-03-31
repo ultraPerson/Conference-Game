@@ -67,9 +67,12 @@ namespace Conference.Characters
             private GameObject what;
             private Text whatDesc;
 
+            private GameObject[] allScores;
+
             public GameObject chatUIPrefab;
             private GameObject chatUIClone;
             private ChatBehaviour chatBehaviour;
+            //private string savePath = $"{Application.}/highscores.json";
             // private RectTransform cTextRTrans;
             // private RectTransform cInputRTrans;
             public bool chatOpen
@@ -136,11 +139,14 @@ namespace Conference.Characters
 
             {
 
+                
+                if(Screen.height != screenH || Screen.width != screenW)
+                {
 
                 screenH = Screen.height;
                 screenW = Screen.width;
 
-
+                }
 
                 vPoints.text = playerName + " score: " + points.ToString();
 
