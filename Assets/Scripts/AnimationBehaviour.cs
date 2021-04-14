@@ -3,41 +3,76 @@ using System.Collections.Generic;
 using System;
 using UnityEngine.UI;
 using UnityEngine;
+using Scoreboards;
+
+using Menus;
 
 
-namespace Conference.Characters
+namespace Characters
 {
-    namespace Conference.Scoreboards
-    {
+    
+       
         public class AnimationBehaviour : MonoBehaviour
         {
 
-            public GameObject face;
+            //public GameObject face;
 
-            private SpriteRenderer currentFace;
+            //private SpriteRenderer currentFace;
             private int layerMask = 1 << 8;
-           // private Animation faceAnim;
-           // private Animator faceState;
+            private Animator animator;
+            private Animation animationsTake;
             private GameObject player;
             private NPCScript convoPartner;
+
+            private bool met;
+            private bool conversing;
            
             // Start is called before the first frame update
             void Start()
             {
-                currentFace = face.GetComponent<SpriteRenderer>();
+                animator = transform.GetChild(1).gameObject.GetComponent<Animator>();
+                animationsTake = transform.GetChild(1).gameObject.GetComponent<Animation>();
+                //AddClip(animationsTake, "handshake", 109, 249, true);
+                //currentFace = face.GetComponent<SpriteRenderer>();
                 layerMask = ~layerMask;
                 //faceState = face.GetComponent<Animator>();
                 //faceAnim = face.GetComponent<Animation>();
                 //faceAnim["TalkingFace"].wrapMode = WrapMode.PingPong;
                // faceAnim.playAutomatically = false;
                 player = GameObject.FindWithTag("Player");
-                convoPartner = GetComponent<NPCScript>();
+                convoPartner = this.GetComponent<NPCScript>();
 
             }
 
             // Update is called once per frame
             void Update()
             {
+                if(met != convoPartner.met)
+                {
+                met = convoPartner.met;
+                Debug.Log("Met set to " + met);
+                }
+
+                if(conversing != convoPartner.animPlay)
+                {
+                conversing = convoPartner.animPlay;
+                Debug.Log("conversing set to " + conversing);
+                }
+
+                animator.SetBool("met", met);
+                animator.SetBool("Conversation", conversing);
+
+               /* if(conversing)
+                {
+                    if(met)
+                    {
+                        animator.Play("Talking");
+                    } else
+                    {
+                        animator.Play("Handshake");
+                        //animator.PlayQueued("Talking");
+                    }
+                }*/
 
                 
 
@@ -50,13 +85,14 @@ namespace Conference.Characters
                 
 
             }
-
+/*
             public Sprite FaceMaker()
             {
 
                 return convoPartner.faces[new System.Random().Next(convoPartner.faces.Length - 1)];
 
-            }
+            }*/
         }
-    }
+    
 }
+

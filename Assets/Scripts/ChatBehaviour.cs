@@ -5,11 +5,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Mirror;
 using TMPro;
+using Scoreboards;
 
-namespace Conference.Characters
+namespace Characters
 {
-    namespace Conference.Scoreboards
-    {
+    
         public class ChatBehaviour : NetworkBehaviour
         {
       
@@ -128,4 +128,4 @@ namespace Conference.Characters
 
         }
     }
-}
+

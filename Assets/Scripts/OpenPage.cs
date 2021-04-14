@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Runtime.InteropServices;
+using Characters;
+using Scoreboards;
 
-namespace Conference.Characters
-{
-    namespace Conference.Scoreboards
-    {
+
         public class OpenPage : MonoBehaviour
         {
 
@@ -49,5 +48,4 @@ namespace Conference.Characters
 
         }
 
-    }
-}
+    

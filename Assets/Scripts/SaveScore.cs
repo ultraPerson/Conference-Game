@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Characters;
 
-namespace Conference.Characters
-{
-    namespace Conference.Scoreboards
+
+    namespace Scoreboards
     {
         [Serializable]
         public class SaveScore
@@ -12,4 +12,4 @@ namespace Conference.Characters
 
         }
     }
-}
+

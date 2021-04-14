@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Scoreboards;
+using Menus;
 
-namespace Conference.Characters
+namespace Characters
 {
-    namespace Conference.Scoreboards
-    {
+    
+        
         public class TPMove : MonoBehaviour
         {
             public CharacterController controller;
@@ -75,5 +77,5 @@ namespace Conference.Characters
 
             }
         }
+        
     }
-}

@@ -1,10 +1,10 @@
-﻿using System.IO;
+using System.IO;
 using UnityEngine;
 using System;
+using Characters;
 
-namespace Conference.Characters
-{
-    namespace Conference.Scoreboards
+
+    namespace Scoreboards
     {
         //[Serializable]
         public class Scoreboard : MonoBehaviour
@@ -113,7 +113,7 @@ namespace Conference.Characters
                    
                    allScores[i] = highscoresHolderTransform.GetChild(i).gameObject;
 
-                   Debug.Log(allScores[i].transform.name);
+                   //Debug.Log(allScores[i].transform.name);
 
                 }
 
@@ -167,4 +167,4 @@ namespace Conference.Characters
         }
 
     }
-}
+

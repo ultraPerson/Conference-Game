@@ -3,11 +3,13 @@ using System.Collections.Generic;
 
 using UnityEngine.UI;
 using UnityEngine;
+using Scoreboards;
+using Menus;
 
-namespace Conference.Characters
+
+namespace Characters
 {
-    namespace Conference.Scoreboards
-    {
+   
         public class NPCScript : MonoBehaviour
         {
 
@@ -27,8 +29,8 @@ namespace Conference.Characters
             public GameObject quizCanvas;
             private GameObject pauseCtrl;//private
             private GameObject tPCam;//private
-            public Sprite[] faces;
-            public GameObject face;
+            //public Sprite[] faces;
+            //public GameObject face;
             public bool animPlay
             {
                 get { return conversing; }
@@ -45,7 +47,8 @@ namespace Conference.Characters
             private bool feedbackMode = false;
             public string[] quizQuestions = { "This statement is false?", "What is the difference between a duck?" };
             private int dialoguePos = 0;
-            private Animation anim;
+            //private Animation anim;
+            private TPVisor vScript;
    
            
 
@@ -58,10 +61,12 @@ namespace Conference.Characters
 
             void Start(){
 
+                thisCam = transform.GetChild(0).GetComponent<Camera>();
                 mainCam = Camera.main;
                 mainCanvas = GameObject.Find("/Main Camera/VisorCanvas").GetComponent<Canvas>();
                 
                 tPCam = mainCam.gameObject;
+                dialogueCanvas.enabled = false;
 
 
             }
@@ -77,7 +82,7 @@ namespace Conference.Characters
                 thisCam.enabled = false;
                 //Debug.Log(dialogue.Length);
                 quizCanvas.SetActive(false);
-                anim = face.GetComponent<Animation>();
+                //anim = face.GetComponent<Animation>();
                 met = false;
                 //anim.playAutomatically = false;
                 //dialogueBox.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width * 0.8f, Screen.height / 3);
@@ -86,6 +91,7 @@ namespace Conference.Characters
 
             public void Interact()
             {
+                
 
                 if (quizing || !conversing)
                 {
@@ -93,7 +99,10 @@ namespace Conference.Characters
                     pauseCtrl.GetComponent<PauseScript>().ConvoStatus(conversing);
 
                     mainCam.enabled = false;
+                    //change audio listener
+                    transform.GetChild(0).GetComponent<AudioListener>().enabled = true;
                     tPCam.SetActive(false);
+                    dialogueCanvas.enabled = true;
                     mainCanvas.enabled = false;
                     thisCam.enabled = true;
                     // Cursor.lockState = CursorLockMode.None;
@@ -132,54 +141,15 @@ namespace Conference.Characters
                         dialogueBoxText.text = dialogue[ChooseDialogue(dialoguePos)];
                     }
 
-                face.GetComponent<SpriteRenderer>().sprite = faces[new System.Random().Next(faces.Length - 1)];
-                   /* catch (System.IndexOutOfRangeException e)
-                    {
-                        dialogueBoxText.text = dialogue[dialogue.Length - 1];
-                    }*/
-                /*
-                if (dialoguePos < dialogue.Length)
-                {
-
-
-
-
-                    dialoguePos++;
-                    Debug.Log("Position: " + dialoguePos + ", which should be less than " + dialogue.Length);
-
-
-
-
-                }
-                else dialoguePos = dialogue.Length;*/
-
-
-
-
-                // Debug.Log(dialoguePos);
-
-
-
+                //face.GetComponent<SpriteRenderer>().sprite = faces[new System.Random().Next(faces.Length - 1)];
+                  
 
 
 
 
 
             }
-            /*
-            void Speak(int sel)
-            {
-
-
-                if(sel >= dialogue.Length)
-                {
-                    sel = dialogue.Length;
-                    dialoguePos = 0;
-                    Debug.Log("Dialogue reset");
-                }
-
-                dialogueBoxText.text = dialogue[sel];
-            }*/
+           
 
 
             void QuizTime()
@@ -276,6 +246,8 @@ namespace Conference.Characters
                 conversing = false;
                 pauseCtrl.GetComponent<PauseScript>().ConvoStatus(conversing);
                 mainCam.enabled = true;
+                
+                transform.GetChild(0).GetComponent<AudioListener>().enabled = false;
                 tPCam.SetActive(true);
                 mainCanvas.enabled = true;
                 thisCam.enabled = false;
@@ -283,7 +255,7 @@ namespace Conference.Characters
                 // Debug.Log(Cursor.lockState);
                 //quizing = false;
                 quizCanvas.SetActive(false);
-                face.GetComponent<SpriteRenderer>().sprite = faces[0];
+                //face.GetComponent<SpriteRenderer>().sprite = faces[0];
             }
 
 
@@ -388,7 +360,5 @@ namespace Conference.Characters
 
         }
     }
-}
 
-    // Update is called once per frame
-   
+

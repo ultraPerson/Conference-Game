@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Cinemachine;
+using Scoreboards;
+using Menus;
 
-namespace Conference.Characters
+namespace Characters
 {
-    namespace Conference.Scoreboards
-    {
+    
         public class TPVisor : MonoBehaviour
         {
 
@@ -72,11 +73,13 @@ namespace Conference.Characters
             public GameObject chatUIPrefab;
             private GameObject chatUIClone;
             private ChatBehaviour chatBehaviour;
+            private PauseScript pauseScript;
             //private string savePath = $"{Application.}/highscores.json";
             // private RectTransform cTextRTrans;
             // private RectTransform cInputRTrans;
             public bool chatOpen
             { get; private set; }
+            public bool isPaused;
 
             
             Scoreboard scoreboard;
@@ -85,6 +88,8 @@ namespace Conference.Characters
             // Start is called before the first frame update
             void Start()
             {
+
+                Cursor.lockState = CursorLockMode.Locked;
 
                 chatUIClone = Instantiate(chatUIPrefab);
 
@@ -100,7 +105,7 @@ namespace Conference.Characters
                 pBG = GameObject.Find("/Main Camera/VisorCanvas/ScoreBG");
 
                 
-
+                pauseScript = GetComponent<PauseScript>();
                 chatOpen = false;
                 chatBehaviour = chatUIClone.GetComponent<ChatBehaviour>();
                // cTextRTrans = chatBehaviour.chatText.GetComponent<RectTransform>();
@@ -138,7 +143,7 @@ namespace Conference.Characters
             void Update()
 
             {
-
+                isPaused = pauseScript.isPaused;
                 
                 if(Screen.height != screenH || Screen.width != screenW)
                 {
@@ -185,8 +190,9 @@ namespace Conference.Characters
                 //Debug.DrawRay(cam.transform.position, Vector3.forward * 100, Color.green);
 
 
-
-                if (Physics.Raycast(lookAt, out seen, 10, layerMask))
+                if(!isPaused)
+                {
+                if (Physics.Raycast(lookAt, out seen, 5, layerMask))
                 {
                     what = seen.transform.gameObject;
                     //Debug.Log(what.name);
@@ -206,11 +212,12 @@ namespace Conference.Characters
 
 
 
-                }
+                } 
                 else
                 {
                     seeingNew = false;
                     what = whatDefault;
+                }
                 }
 
                 WhatAmISeeing(what);
@@ -221,6 +228,10 @@ namespace Conference.Characters
 
                 if (Input.GetKeyDown(KeyCode.Quote))
                 {
+                    chatOpen = !chatOpen;
+
+                    chatBehaviour.OpenChatUI(chatOpen);
+                    camControl.enabled = !chatOpen;
 
                     if(chatOpen){
                         Cursor.lockState = CursorLockMode.None;
@@ -228,10 +239,9 @@ namespace Conference.Characters
                         Cursor.visible = true;
                     } else Cursor.lockState = CursorLockMode.Locked;
 
-                    chatOpen = !chatOpen;
                     
-                    chatBehaviour.OpenChatUI(chatOpen);
-                    camControl.enabled = !chatOpen;
+                    
+                    
                     
                 }
 
@@ -260,10 +270,11 @@ namespace Conference.Characters
             void WhatAmISeeing(GameObject seen)
             {
 
-
+                
                 string whatType = seen.tag;
 
-
+              //  if(whatType != "Untagged" || whatType != null)
+               // {
                 if (whatType == "NPC")
                 {
                     //NPCScript whatScript;
@@ -292,13 +303,21 @@ namespace Conference.Characters
                     seeingNew = logCheck;
                     VTextChange(description, logCheck);
 
+                } else if(whatType == "MiscObj")
+                {
+                    if(seen.transform.name == "Ball")
+                    {
+                        VTextChange("Kick", false);
+                    }
                 }
-                else VTextChange("Scanning...", false);
+                 else VTextChange("Scanning...", false);
 
             }
 
             void OnClick(GameObject what)
             {
+
+                
 
                 if (seeingNew)
                 {
@@ -336,32 +355,19 @@ namespace Conference.Characters
                     }
                 }
 
+                if(what.transform.name == "Ball")
+                {
+                    Debug.Log(what.transform.name);
+                    what.GetComponent<BallBehaviour>().Kick(Vector3.forward);
+                }
+
                 // Debug.Log(logCheck);
 
             }
-            /*
-            public void CursorState(int choice)
-            {
-                switch (choice)
-                {
-                    //1 = none, 2 = restricted, 3 = locked
-                    case 1:
-                        Cursor.lockState = CursorLockMode.None;
-                        break;
-                    case 2:
-                        Cursor.lockState = CursorLockMode.Confined;
-                        break;
+            
 
-
-                }
-            }*/
-
-            void LateUpdate()
-            {
-
-
-
-            }
+           
         }
-    }
-}
+        }
+    
+
