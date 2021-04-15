@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using Cinemachine;
 using Scoreboards;
 using Menus;
+using Mirror;
 
 namespace Characters
 {
@@ -70,16 +71,16 @@ namespace Characters
 
             private GameObject[] allScores;
 
-            public GameObject chatUIPrefab;
-            private GameObject chatUIClone;
+            //public GameObject chatUIPrefab;
+            //private GameObject chatUIClone;
             private ChatBehaviour chatBehaviour;
-            private PauseScript pauseScript;
+            [SerializeField] private PauseScript pauseScript;
             //private string savePath = $"{Application.}/highscores.json";
             // private RectTransform cTextRTrans;
             // private RectTransform cInputRTrans;
             public bool chatOpen
             { get; private set; }
-            public bool isPaused;
+            public bool isPaused = true;
 
             
             Scoreboard scoreboard;
@@ -89,9 +90,12 @@ namespace Characters
             void Start()
             {
 
-                Cursor.lockState = CursorLockMode.Locked;
+                GameObject.Find("NetworkManager").GetComponent<NetworkManagerHUD>().offsetX -= 300;
 
-                chatUIClone = Instantiate(chatUIPrefab);
+                //Cursor.lockState = CursorLockMode.Locked;
+                
+
+                //chatUIClone = Instantiate(chatUIPrefab);
 
                 cam = Camera.main;
                 camControl = transform.GetChild(1).gameObject.GetComponent<CinemachineFreeLook>();
@@ -105,9 +109,9 @@ namespace Characters
                 pBG = GameObject.Find("/Main Camera/VisorCanvas/ScoreBG");
 
                 
-                pauseScript = GetComponent<PauseScript>();
+                //pauseScript = GetComponent<PauseScript>();
                 chatOpen = false;
-                chatBehaviour = chatUIClone.GetComponent<ChatBehaviour>();
+                chatBehaviour = GetComponent<ChatBehaviour>();
                // cTextRTrans = chatBehaviour.chatText.GetComponent<RectTransform>();
                // cInputRTrans = chatBehaviour.inputField.GetComponent < RectTransform > ();
                 scoreHolder = pBG.transform.GetChild(0).gameObject;
@@ -130,7 +134,7 @@ namespace Characters
                 vScan = vText.GetComponent<Text>();
                 vPoints = vScore.GetComponent<Text>();
                 //rectTransform = vScan.GetComponent<RectTransform>();
-
+                
                 
 
                 
@@ -180,8 +184,8 @@ namespace Characters
                         dimensions.sizeDelta = new Vector2(pBGTrans.sizeDelta.x/2 - 5, pBGTrans.sizeDelta.y / 8);
                     } else dimensions.sizeDelta = new Vector2(pBGTrans.sizeDelta.x - 10, pBGTrans.sizeDelta.y / 8);
                 }
-                pBGTrans.sizeDelta = new Vector2(screenW / 8, screenH / 3);
-                tBGTrans.sizeDelta = new Vector2(screenW / 6, screenH / 8);
+                pBGTrans.sizeDelta = new Vector2(screenW / 6, screenH / 2);
+                tBGTrans.sizeDelta = new Vector2(screenW, screenH / 3);
                 vTextTrans.sizeDelta = tBGTrans.sizeDelta;
                 vTextTrans.position = tBGTrans.position;
 
@@ -192,35 +196,50 @@ namespace Characters
 
                 if(!isPaused)
                 {
-                if (Physics.Raycast(lookAt, out seen, 5, layerMask))
-                {
-                    what = seen.transform.gameObject;
-                    //Debug.Log(what.name);
-
-
-
-
-
-
-
-
-                    if (Input.GetKeyDown(KeyCode.Mouse0))
+                    if(Physics.Raycast(lookAt, out seen, 10, layerMask) && seen.transform.gameObject.tag == "PictureFrame")
                     {
-                        OnClick(what);
+                       
+                            what = seen.transform.gameObject;
+                         
+                        
 
+
+                        if (Input.GetKeyDown(KeyCode.Mouse0))
+                        {
+                            OnClick(what);
+
+                        }
+
+
+                    }else
+                    if (Physics.Raycast(lookAt, out seen, 5, layerMask))
+                    {
+                        
+                        
+                            what = seen.transform.gameObject;
+                        
+
+
+                        if (Input.GetKeyDown(KeyCode.Mouse0))
+                        {
+                            OnClick(what);
+
+                        }
+
+
+
+                         
+                    }
+                    else
+                    {
+                        seeingNew = false;
+                        what = whatDefault;
                     }
 
-
-
-                } 
-                else
-                {
-                    seeingNew = false;
-                    what = whatDefault;
-                }
+                    WhatAmISeeing(what);
                 }
 
-                WhatAmISeeing(what);
+                
                 /*
                 if(chatOpen){
                     Cursor.lockState = CursorLockMode.Confined;
@@ -272,6 +291,33 @@ namespace Characters
 
                 
                 string whatType = seen.tag;
+/*
+                if(whatType == "OverFrame")
+                {
+                    whatType = seen.transform.parent.tag;
+                } else whatType = seen.tag;*/
+
+
+                Image lastBG = tBG.GetComponent<Image>();
+
+                if(whatType == "Untagged")
+                {
+                    float toAlpha = 0.5f;
+                    for(float i = 1f; i > toAlpha; i-= 0.1f)
+                    {
+                        lastBG.color = new Color(lastBG.color.r, lastBG.color.b, lastBG.color.g, i);
+                    }
+
+                } else
+                    {
+                        float toAlpha = 1f;
+                        for(float i = 0.5f; i < toAlpha; i+= 0.1f)
+                        {
+                            lastBG.color = new Color(lastBG.color.r, lastBG.color.b, lastBG.color.g, i);
+                        }
+                    }
+
+                
 
               //  if(whatType != "Untagged" || whatType != null)
                // {
@@ -279,8 +325,8 @@ namespace Characters
                 {
                     //NPCScript whatScript;
                     //Debug.Log("Yup, that's an NPC");
-                    string npcName = what.GetComponent<NPCScript>().nPCName;
-                    bool met = what.GetComponent<NPCScript>().met;
+                    string npcName = seen.GetComponentInParent<NPCScript>().nPCName;
+                    bool met = seen.GetComponentInParent<NPCScript>().met;
 
                     if (!met)
                     {

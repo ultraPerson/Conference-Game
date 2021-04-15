@@ -531,6 +531,12 @@ ModelImporter:
   - first:
       137: 13700008
     second: Shoes_Smart
+  - first:
+      74: -785490380465597455
+    second: Handshake
+  - first:
+      74: -8703035399731986702
+    second: Talking
   externalObjects: {}
   materials:
     materialImportMode: 0

@@ -10,6 +10,7 @@ public class SetPhoto : MonoBehaviour
 
     public bool isProfile = false;
     bool profileSet;
+    GameObject thisPic;
 
     [SerializeField] string profileDestination;
 
@@ -17,6 +18,9 @@ public class SetPhoto : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
+        thisPic = transform.GetChild(0).gameObject;
+
         if(!string.IsNullOrEmpty(profileDestination))
         {
             isProfile = true;
@@ -32,7 +36,7 @@ public class SetPhoto : MonoBehaviour
     void Update()
     {
 
-        if(isProfile && !profileSet)
+        if(isProfile && !profileSet && thisPic.GetComponent<Image>().sprite.name == "Chomp")
         {   
             
             GetPic(profileDestination);
@@ -55,7 +59,7 @@ public class SetPhoto : MonoBehaviour
 
     void SetPic(Texture2D pic)
     {
-        GameObject thisPic = transform.GetChild(0).gameObject;
+        
         thisPic.GetComponent<Image>().sprite = Sprite.Create(pic, new Rect(0,0, pic.width, pic.height), new Vector2(0.5f, 0.5f));
         //thisPic.GetComponent<SpriteRenderer>().size = new Vector2(100,150);
         //thisPic.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);

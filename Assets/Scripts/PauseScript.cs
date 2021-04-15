@@ -17,17 +17,21 @@ public class PauseScript : MonoBehaviour
     private GameObject helpObj;
     private GameObject previous;
     private GameObject player;
+    
     private GameObject male;
     private GameObject fem;
     private GameObject mann;
+
     private UnityAction _closePause;
     private UnityAction _settings;
     private UnityAction _help;
     private UnityAction _back;
+    private UnityAction _startGame;
+
     private CinemachineFreeLook camRig;
 
     private string pObjName = "Player";
-    private string pObjNameAlt = "PlayerClone";
+    private string pObjNameAlt = "Player(Clone)";
 
     private Button back;
     private Slider mouseS;
@@ -46,35 +50,59 @@ public class PauseScript : MonoBehaviour
         _help += Help;
         _settings += Settings;
         _back += BackFunction;
+        _startGame += StartGame;
 
-        isPaused = false;
+        
         pauseUI = GameObject.Find("/PauseCanvas");
         visorCanvas = GameObject.Find("/Main Camera/VisorCanvas");
         player = GameObject.Find(pObjName);
+        //player.SetActive(true);
         
         
         
         settingsObj = pauseUI.transform.GetChild(1).gameObject;
         helpObj = pauseUI.transform.GetChild(2).gameObject;
-        mouseS = settingsObj.transform.GetChild(3).GetChild(1).GetComponent<Slider>();
+        mouseS = settingsObj.transform.GetChild(4).GetChild(1).GetComponent<Slider>();
         camRig = transform.GetChild(1).GetComponent<CinemachineFreeLook>();
-        charList = settingsObj.transform.GetChild(4).GetChild(1).GetComponent<Dropdown>();
+        charList = settingsObj.transform.GetChild(5).GetChild(1).GetComponent<Dropdown>();
 
         mouseS.minValue = 1f;
-        mouseS.maxValue = 300f;
+        mouseS.maxValue = 100f;
         mouseS.onValueChanged.AddListener(delegate {SensitivityChange(mouseS.value);});
-        mouseS.value = 50;
+        mouseS.value = 25;
 
         charList.onValueChanged.AddListener(delegate {CharacterSelect(charList.value);});
         
-        settingsObj.SetActive(false);
-        helpObj.SetActive(false);
-        pauseUI.SetActive(false);
+        
+        
+
 
         pauseUI.transform.GetChild(0).GetChild(2).GetComponent<Button>().onClick.AddListener(_closePause);
         pauseUI.transform.GetChild(0).GetChild(3).GetComponent<Button>().onClick.AddListener(_settings);
-        settingsObj.transform.GetChild(2).GetComponent<Button>().onClick.AddListener(_help);
+        settingsObj.transform.GetChild(3).GetComponent<Button>().onClick.AddListener(_help);
         
+        IntroScreen();
+
+    }
+
+    public void IntroScreen()
+    {
+
+        settingsObj.SetActive(false);
+        helpObj.SetActive(true);
+        pauseUI.SetActive(true);
+
+        
+        currentScreen = "Help";
+        
+        
+        
+        back = helpObj.transform.GetChild(1).gameObject.GetComponent<Button>();
+        back.GetComponentInChildren<Text>().text = "Continue";
+        
+        back.onClick.AddListener(_startGame);
+        visorCanvas.SetActive(false);
+        Time.timeScale = 0;
 
     }
     
@@ -85,10 +113,13 @@ public class PauseScript : MonoBehaviour
         if(player == null){
 
             pObjName = pObjNameAlt;
+            
             player = GameObject.Find(pObjName);
+            player.SetActive(true);
             
         }
 
+        
         
         
 
@@ -110,6 +141,18 @@ public class PauseScript : MonoBehaviour
 
         
         
+    }
+
+    public void StartGame()
+    {
+        currentScreen = "Play";
+        helpObj.SetActive(false);
+        pauseUI.SetActive(false);
+        Cursor.lockState = CursorLockMode.Locked;
+        Time.timeScale = 1;
+        isPaused = false;
+        visorCanvas.SetActive(true);
+        back.onClick.RemoveListener(_startGame);
     }
     public void OpenPause()
     {
@@ -143,7 +186,7 @@ public class PauseScript : MonoBehaviour
        
         settingsObj.SetActive(true);
         
-        back = settingsObj.transform.GetChild(1).gameObject.GetComponent<Button>();
+        back = settingsObj.transform.GetChild(2).gameObject.GetComponent<Button>();
         back.onClick.RemoveListener(_back);
         back.onClick.AddListener(_back);
       
@@ -162,8 +205,8 @@ public class PauseScript : MonoBehaviour
     {
         
 
-        camRig.m_XAxis.m_MaxSpeed = val;
-        camRig.m_YAxis.m_MaxSpeed = val / 20;
+        camRig.m_XAxis.m_MaxSpeed = val * 10;
+        camRig.m_YAxis.m_MaxSpeed = val / 30;
 
     }
 
@@ -210,6 +253,8 @@ public class PauseScript : MonoBehaviour
 
     public void Help()
     {
+
+        Debug.Log("Help");
         currentScreen = "Help";
         helpObj.SetActive(true);
         settingsObj.SetActive(false);
@@ -224,22 +269,22 @@ public class PauseScript : MonoBehaviour
 
     public void BackFunction()
     {
-        Debug.Log("Back");
+        //Debug.Log("Back");
         switch(currentScreen)
         {
             case "Help":
             Settings();
-            Debug.Log("Back, Settings()");
+            Debug.Log($"Back, {currentScreen}");
             break;
 
             case "Settings":
             OpenPause();
-            Debug.Log("Back, OpenPause()");
+            Debug.Log($"Back, {currentScreen}");
             break;
 
             default:
             ClosePause();
-            Debug.Log("Back, ClosePause()");
+            Debug.Log($"Back, {currentScreen}");
             break;
 
         }

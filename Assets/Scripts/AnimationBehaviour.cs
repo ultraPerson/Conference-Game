@@ -59,7 +59,7 @@ namespace Characters
                 Debug.Log("conversing set to " + conversing);
                 }
 
-                animator.SetBool("met", met);
+                animator.SetBool("Met", met);
                 animator.SetBool("Conversation", conversing);
 
                /* if(conversing)

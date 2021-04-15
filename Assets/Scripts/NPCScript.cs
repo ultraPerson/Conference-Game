@@ -38,7 +38,7 @@ namespace Characters
             }
             //public GameObject vision;
 
-            private bool seesYou = false;
+            //private bool seesYou = false;
             private int qLevel = 0;
             private bool quizing = false;
             private bool conversing = false;
@@ -63,7 +63,7 @@ namespace Characters
 
                 thisCam = transform.GetChild(0).GetComponent<Camera>();
                 mainCam = Camera.main;
-                mainCanvas = GameObject.Find("/Main Camera/VisorCanvas").GetComponent<Canvas>();
+                mainCanvas = Camera.main.transform.GetChild(0).GetComponent<Canvas>();
                 
                 tPCam = mainCam.gameObject;
                 dialogueCanvas.enabled = false;

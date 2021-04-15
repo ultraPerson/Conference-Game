@@ -22,7 +22,7 @@ using Characters;
 
             private void Start()
             {
-                savePath = $"{Application.persistentDataPath}/highscores.json";
+                savePath = "/highscores.json";
 
                 SaveScore savedScores = GetSavedScores();
                 UpdateScores(savedScores);
@@ -99,37 +99,12 @@ using Characters;
                     Instantiate(scoreboardEntryObj, highscoresHolderTransform).GetComponent<ScoreboardEntryUI>().Initialize(score);
                 }
 
-                UIOrganizer();
+                
                 
                 
             }
 
-            private void UIOrganizer()
-            {
-
-                for(int i = 0; i < highscoresHolderTransform.childCount; i++)
-                {
-                   allScores = new GameObject[highscoresHolderTransform.childCount]; 
-                   
-                   allScores[i] = highscoresHolderTransform.GetChild(i).gameObject;
-
-                   //Debug.Log(allScores[i].transform.name);
-
-                }
-
-               
-
-                
-                   foreach(GameObject scoreStats in allScores)
-                    {
-                        if(scoreStats != null)
-                        {
-                            scoreStats.transform.GetChild(0).GetComponent<RectTransform>().sizeDelta = new Vector2(highscoresHolderTransform.sizeDelta.x/2, highscoresHolderTransform.sizeDelta.y);
-                            scoreStats.transform.GetChild(1).GetComponent<RectTransform>().sizeDelta = new Vector2(highscoresHolderTransform.sizeDelta.x/2, highscoresHolderTransform.sizeDelta.y);
-                        } else Debug.Log("FUCK");
-                    }
-
-            }
+            
 
 
             private SaveScore GetSavedScores()
