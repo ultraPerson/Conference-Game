@@ -130,16 +130,17 @@ namespace Characters
                 // Speak(dialoguePos, met);
                 // anim.Play("TalkingFace");
 
-                if (!met)
+               /* if (!met)
                 {
                     
                     dialogueBoxText.text = dialogue[0];
                     met = true;
                 }
                 else //try
-                    {
+                    {*/
+                    met = true;
                         dialogueBoxText.text = dialogue[ChooseDialogue(dialoguePos)];
-                    }
+                    //}
 
                 //face.GetComponent<SpriteRenderer>().sprite = faces[new System.Random().Next(faces.Length - 1)];
                   
@@ -227,7 +228,7 @@ namespace Characters
                 if (ans == correctAnswers[qLevel])
                 {
                     vScript.points++;
-                    quizText.text = "Correct!";
+                    quizText.text = "Excellent!";
                     interfaceHelp.text = "Enter/Return";
                     //feedbackMode = true;
                     qLevel++;
@@ -235,7 +236,7 @@ namespace Characters
                 else
                 {
                     //feedbackMode = true;
-                    quizText.text = "NO!";
+                    quizText.text = "Aww, too bad...";
                     interfaceHelp.text = "Enter/Return";
                     qLevel++;
                 }

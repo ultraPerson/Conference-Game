@@ -9,6 +9,8 @@ public class LPEP_Shuffler : MonoBehaviour
 
     // the counts will decide which choice is made.
 
+    public bool changeAfterStart = false;
+
     private int hatCount = 0; // count
    // private int hatID = 0; // choice
     private int glassesCount = 0;
@@ -105,14 +107,17 @@ public class LPEP_Shuffler : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown("space"))
+        if(changeAfterStart)
         {
-            // INPUT BASED PICKING (SPACE)
-            pickHat();
-            pickHair();
-            pickBeard();
-            decideGlasses();
-            makeSkinTone();
+            if (Input.GetKeyDown("space"))
+            {
+                // INPUT BASED PICKING (SPACE)
+                pickHat();
+                pickHair();
+                pickBeard();
+                decideGlasses();
+                makeSkinTone();
+            }
         }
     }
 

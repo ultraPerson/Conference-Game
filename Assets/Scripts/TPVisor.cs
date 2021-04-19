@@ -196,22 +196,7 @@ namespace Characters
 
                 if(!isPaused)
                 {
-                    if(Physics.Raycast(lookAt, out seen, 10, layerMask) && seen.transform.gameObject.tag == "PictureFrame")
-                    {
-                       
-                            what = seen.transform.gameObject;
-                         
-                        
-
-
-                        if (Input.GetKeyDown(KeyCode.Mouse0))
-                        {
-                            OnClick(what);
-
-                        }
-
-
-                    }else
+                    
                     if (Physics.Raycast(lookAt, out seen, 5, layerMask))
                     {
                         
@@ -302,14 +287,17 @@ namespace Characters
 
                 if(whatType == "Untagged")
                 {
-                    float toAlpha = 0.5f;
+
+                    tBG.SetActive(false);
+                    /*float toAlpha = 0f;
                     for(float i = 1f; i > toAlpha; i-= 0.1f)
                     {
                         lastBG.color = new Color(lastBG.color.r, lastBG.color.b, lastBG.color.g, i);
-                    }
+                    }*/
 
                 } else
                     {
+                        tBG.SetActive(true);
                         float toAlpha = 1f;
                         for(float i = 0.5f; i < toAlpha; i+= 0.1f)
                         {
@@ -356,7 +344,7 @@ namespace Characters
                         VTextChange("Kick", false);
                     }
                 }
-                 else VTextChange("Scanning...", false);
+                 else VTextChange(" ", false);
 
             }
 

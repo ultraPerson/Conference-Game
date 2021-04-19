@@ -75,6 +75,7 @@ public class PauseScript : MonoBehaviour
         
         
         
+        
 
 
         pauseUI.transform.GetChild(0).GetChild(2).GetComponent<Button>().onClick.AddListener(_closePause);
@@ -116,6 +117,7 @@ public class PauseScript : MonoBehaviour
             
             player = GameObject.Find(pObjName);
             player.SetActive(true);
+            
             
         }
 
