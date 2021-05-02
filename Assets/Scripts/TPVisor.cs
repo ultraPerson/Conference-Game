@@ -90,7 +90,7 @@ namespace Characters
             void Start()
             {
 
-                GameObject.Find("NetworkManager").GetComponent<NetworkManagerHUD>().offsetX -= 300;
+                //GameObject.Find("NetworkManager").GetComponent<NetworkManagerHUD>().offsetX -= 300;
 
                 //Cursor.lockState = CursorLockMode.Locked;
                 
