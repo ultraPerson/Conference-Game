@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-
+using System;
 using UnityEngine.UI;
 using UnityEngine;
 using Scoreboards;
@@ -40,19 +40,21 @@ namespace Characters
 
             //private bool seesYou = false;
             private int qLevel = 0;
+            private int numberOfQ;
             private bool quizing = false;
             private bool conversing = false;
             private bool answer;
-            public bool[] correctAnswers = { true, false };
+            [SerializeField] private bool[] correctAnswers = { true, false };
+            [SerializeField] private string[] extraResponse = {"The answer you gave was incorrect!", "My father was a winged pringle."};
             private bool feedbackMode = false;
-            public string[] quizQuestions = { "This statement is false?", "What is the difference between a duck?" };
+            [SerializeField] private string[] quizQuestions = { "This statement is false?", "What is the difference between a duck?" };
             private int dialoguePos = 0;
             //private Animation anim;
             private TPVisor vScript;
    
            
 
-            public string[] dialogue = {
+            [SerializeField]private string[] dialogue = {
         "Hello! My name is Enpici Defaultson.",
         "I don't have much to say, really.",
         "Let's see how much dialogue I can fit in this box here. Bla bla bla bla bla. Capitalism makes political enemies of us all. Ablolish the state.",
@@ -66,7 +68,13 @@ namespace Characters
                 mainCanvas = Camera.main.transform.GetChild(0).GetComponent<Canvas>();
                 
                 tPCam = mainCam.gameObject;
+                numberOfQ = quizQuestions.Length;
                 dialogueCanvas.enabled = false;
+
+                if(extraResponse.Length < numberOfQ)
+                {
+                    Array.Resize(ref extraResponse, numberOfQ -1);
+                }
 
 
             }
@@ -228,7 +236,8 @@ namespace Characters
                 if (ans == correctAnswers[qLevel])
                 {
                     vScript.points++;
-                    quizText.text = "Excellent!";
+                    quizText.text = "Excellent!\n";
+                    
                     interfaceHelp.text = "Enter/Return";
                     //feedbackMode = true;
                     qLevel++;
@@ -236,10 +245,15 @@ namespace Characters
                 else
                 {
                     //feedbackMode = true;
-                    quizText.text = "Aww, too bad...";
+                    quizText.text = "Aww, too bad...\n";
                     interfaceHelp.text = "Enter/Return";
                     qLevel++;
                 }
+
+                if(!string.IsNullOrEmpty(extraResponse[qLevel]))
+                    {
+                        quizText.text += extraResponse[qLevel -1];
+                    }
             }
 
             public void LeaveConvo()
