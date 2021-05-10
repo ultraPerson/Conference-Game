@@ -9,6 +9,7 @@ public class AudioControl : MonoBehaviour
 
     AudioSource music;
     AudioSource ocean;
+    bool indoors = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,9 +19,29 @@ public class AudioControl : MonoBehaviour
         ocean = GameObject.Find("Beach").GetComponent<AudioSource>();
     }
 
-    // Update is called once per frame
-    void Update()
+    
+    void FixedUpdate()
     {
+        if(indoors == false)
+        {
+            ocean.priority = 0;
+            music.priority = 1;
+
+            while(ocean.volume < .75f)
+            {
+                ocean.volume += 0.1f;
+            }
+        } else 
+        {
+            music.priority = 0;
+            ocean.priority = 1;
+            
+            while(ocean.volume > .25f)
+            {
+                ocean.volume -= 0.1f;
+            }
+            
+        }
         
     }
 
@@ -30,18 +51,7 @@ public class AudioControl : MonoBehaviour
         if(collider.name == "Player" || collider.name == "Player(Clone)")
         {
 
-            music.priority = 0;
-            ocean.priority = 1;
-            
-            while(music.minDistance < 12)
-            {
-                music.minDistance++;
-            }
-            while(ocean.maxDistance > 100)
-            {
-                ocean.maxDistance --;
-                
-            }
+            indoors = true;
 
         }
 
@@ -49,23 +59,14 @@ public class AudioControl : MonoBehaviour
     }
 
     void OnTriggerExit(Collider collider)
-        {
-            if(collider.name == "Player" || collider.name == "Player(Clone)")
+    {
+        if(collider.name == "Player" || collider.name == "Player(Clone)")
         {
 
-                ocean.priority = 0;
-                music.priority = 1;
-            
-            while(ocean.maxDistance < 150)
-            {
-                ocean.maxDistance ++;
-            }
-            while(music.minDistance > 1)
-            {
-                music.minDistance--;
-            }
-                
+            indoors = false;
 
         }
-        }
+    }
+
+    
 }

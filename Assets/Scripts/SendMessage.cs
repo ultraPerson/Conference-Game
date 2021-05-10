@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PubNubAPI;
@@ -114,11 +114,8 @@ public class SendMessage : MonoBehaviour {
         
 
         // Create a new gameobject that will display text of the data sent via PubNub
-        GameObject chatMessage = Instantiate(new GameObject(currentObject), scrollContent.transform); //as GameObject;//new GameObject(currentObject); //use instantiate
-        //chatMessage.transform.SetParent(scrollContent.transform);
+        GameObject chatMessage = Instantiate(new GameObject(currentObject), scrollContent.transform);
         chatMessage.transform.localPosition = Vector3.zero;
-        //chatMessage.transform.localScale = new Vector3(1,1,1);
-        //chatMessage.transform.position = new Vector3(canvasObject.transform.GetChild(0).GetChild(0).GetChild(0).GetChild(0).position.x - paddingX, canvasObject.transform.GetChild(0).GetChild(0).GetChild(0).GetChild(0).position.y - paddingY + padding - (indexcounter * height), 1F);        
         chatMessage.AddComponent<Text>().text = currentObject;
 
         // Assign text to the gameobject. Add visual properties to text

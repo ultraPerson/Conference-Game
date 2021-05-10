@@ -73,7 +73,7 @@ namespace Characters
 
                 if(extraResponse.Length < numberOfQ)
                 {
-                    Array.Resize(ref extraResponse, numberOfQ -1);
+                    Array.Resize(ref extraResponse, numberOfQ);
                 }
 
 
@@ -235,24 +235,29 @@ namespace Characters
 
                 if (ans == correctAnswers[qLevel])
                 {
+
+                    Debug.Log(qLevel);
+                    
                     vScript.points++;
-                    quizText.text = "Excellent!\n";
+                    quizText.text = $"Correct ansewer: {ans.ToString()}. Excellent!\n";
                     
                     interfaceHelp.text = "Enter/Return";
-                    //feedbackMode = true;
+                    
                     qLevel++;
                 }
                 else
                 {
+                    bool correct = !ans;
                     //feedbackMode = true;
-                    quizText.text = "Aww, too bad...\n";
+                    quizText.text = $"Correct ansewer: {correct.ToString()}. Aww, too bad...\n";
                     interfaceHelp.text = "Enter/Return";
                     qLevel++;
                 }
 
-                if(!string.IsNullOrEmpty(extraResponse[qLevel]))
+                if(!string.IsNullOrEmpty(extraResponse[qLevel -1]))
                     {
-                        quizText.text += extraResponse[qLevel -1];
+                        quizText.text += extraResponse[qLevel - 1];
+                        Debug.Log(extraResponse[qLevel - 1]);
                     }
             }
 

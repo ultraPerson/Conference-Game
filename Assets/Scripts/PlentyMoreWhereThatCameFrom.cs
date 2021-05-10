@@ -13,7 +13,7 @@ public class PlentyMoreWhereThatCameFrom : MonoBehaviour
     {
         if(GameObject.Find("Player") == null && GameObject.Find("Player(Clone)") == null)
         {
-            Instantiate(playerPrefab);
+            Instantiate(playerPrefab, new Vector3(4.9f, 73.7f, -62.1f), Quaternion.identity);
         }
         
     }

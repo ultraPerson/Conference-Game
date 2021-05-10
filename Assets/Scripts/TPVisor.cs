@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -159,12 +159,14 @@ namespace Characters
 
                 vPoints.text = playerName + " score: " + points.ToString();
 
+                if(scoreData.score < points)
+                {
                 scoreData.score = points;
-
+                }
                 lookAt = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
                 //Vscan and TBG coordinates 
-                textPos = new Vector2(screenW + (screenW * -1), screenH + (screenH * -1));
+                textPos = new Vector2(0, 0);
                 //vpoints and PBG coordinates
                 pointPos = new Vector2(screenW, screenH);
 
@@ -186,8 +188,8 @@ namespace Characters
                 }
                 pBGTrans.sizeDelta = new Vector2(screenW / 6, screenH / 2);
                 tBGTrans.sizeDelta = new Vector2(screenW, screenH / 3);
-                vTextTrans.sizeDelta = tBGTrans.sizeDelta;
-                vTextTrans.position = tBGTrans.position;
+                vTextTrans.sizeDelta = new Vector2(screenW - 20, (screenH / 3) - 10);
+                vTextTrans.position = new Vector2(10, 5);
 
 
                 playerCanvas.transform.position = cam.ScreenToWorldPoint(textPos);
@@ -392,7 +394,7 @@ namespace Characters
                 if(what.transform.name == "Ball")
                 {
                     Debug.Log(what.transform.name);
-                    what.GetComponent<BallBehaviour>().Kick(Vector3.forward);
+                    what.GetComponent<BallBehaviour>().Kick(cam.transform.forward);
                 }
 
                 // Debug.Log(logCheck);
