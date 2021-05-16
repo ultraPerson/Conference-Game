@@ -90,6 +90,11 @@ namespace Characters
             void Start()
             {
 
+                if(string.IsNullOrEmpty(playerName))
+                {
+                    playerName = "New Player";
+                }
+
                 //GameObject.Find("NetworkManager").GetComponent<NetworkManagerHUD>().offsetX -= 300;
 
                 //Cursor.lockState = CursorLockMode.Locked;

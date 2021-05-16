@@ -1,21 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using Characters;
 using Scoreboards;
 using Cinemachine;
+using Michsky.UI.ModernUIPack;
 
 
 namespace Menus{
 public class PauseScript : MonoBehaviour
 {
-    private GameObject pauseUI;
+    [SerializeField]private GameObject pauseUI;
     private GameObject visorCanvas;
-    private GameObject settingsObj;
-    private GameObject helpObj;
-    private GameObject previous;
+    [SerializeField]private GameObject settingsObj;
+    [SerializeField]private GameObject helpObj;
+    [SerializeField]private GameObject menuPannels;
+    //private GameObject previous;
     private GameObject player;
     
     private GameObject male;
@@ -27,31 +30,42 @@ public class PauseScript : MonoBehaviour
     private UnityAction _help;
     private UnityAction _back;
     private UnityAction _startGame;
+    private UnityAction _updateSettings;
 
     private CinemachineFreeLook camRig;
 
+    
+
     private string pObjName = "Player";
     private string pObjNameAlt = "Player(Clone)";
+    private string settingsPath;
 
-    private Button back;
+    //private Button back;
     private Slider mouseS;
-    private Dropdown charList;
+    private HorizontalSelector charList;
     
     
-    
+    private int charInd = 0;
     private string currentScreen;
+    [SerializeField] private bool isMainMenu = false;
     public bool isPaused 
     {get; private set;}
     private bool talking = false;
     
     void Start(){
 
+        //SettingsSaver currentSettings = GetSettings();
+        //charInd = currentSettings.character;
+        
+        
+
+        settingsPath  = $"{Application.persistentDataPath}/settings.Json";
         _closePause += ClosePause;
-        _help += Help;
-        _settings += Settings;
+        //_help += Help;
+        //_settings += Settings;
         _back += BackFunction;
         _startGame += StartGame;
-
+        //_updateSettings += SaveSettings;
         
         pauseUI = GameObject.Find("/PauseCanvas");
         visorCanvas = GameObject.Find("/Main Camera/VisorCanvas");
@@ -60,27 +74,37 @@ public class PauseScript : MonoBehaviour
         
         
         
-        settingsObj = pauseUI.transform.GetChild(1).gameObject;
-        helpObj = pauseUI.transform.GetChild(2).gameObject;
-        mouseS = settingsObj.transform.GetChild(4).GetChild(1).GetComponent<Slider>();
+        //root menu objects
         camRig = transform.GetChild(1).GetComponent<CinemachineFreeLook>();
-        charList = settingsObj.transform.GetChild(5).GetChild(1).GetComponent<Dropdown>();
+        
+        menuPannels = pauseUI.transform.GetChild(1).gameObject;
 
+        //Settings objects
+        settingsObj = menuPannels.transform.GetChild(1).GetChild(1).gameObject;
+        mouseS = settingsObj.transform.GetChild(4).GetChild(1).GetComponent<Slider>();
+        charList = settingsObj.transform.GetChild(5).GetChild(1).GetComponent<HorizontalSelector>();
+
+        //Help objects
+        helpObj = menuPannels.transform.GetChild(1).GetChild(2).gameObject;
+
+        //settings variables
         mouseS.minValue = 1f;
         mouseS.maxValue = 100f;
         mouseS.onValueChanged.AddListener(delegate {SensitivityChange(mouseS.value);});
         mouseS.value = 25;
 
-        charList.onValueChanged.AddListener(delegate {CharacterSelect(charList.value);});
+        charList.index = charInd;
         
         
         
         
 
-
-        pauseUI.transform.GetChild(0).GetChild(2).GetComponent<Button>().onClick.AddListener(_closePause);
-        pauseUI.transform.GetChild(0).GetChild(3).GetComponent<Button>().onClick.AddListener(_settings);
-        settingsObj.transform.GetChild(3).GetComponent<Button>().onClick.AddListener(_help);
+        charList.transform.GetChild(0).GetComponent<Button>().onClick.AddListener(_updateSettings);
+        charList.transform.GetChild(1).GetComponent<Button>().onClick.AddListener(_updateSettings);
+        menuPannels.transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Button>().onClick.AddListener(_closePause);
+        //pauseUI.transform.GetChild(0).GetChild(3).GetComponent<Button>().onClick.AddListener(_settings);
+        //settingsObj.transform.GetChild(3).GetComponent<Button>().onClick.AddListener(_help);
+        
         
         IntroScreen();
 
@@ -89,20 +113,15 @@ public class PauseScript : MonoBehaviour
     public void IntroScreen()
     {
 
-        settingsObj.SetActive(false);
-        helpObj.SetActive(true);
-        pauseUI.SetActive(true);
-
+        OpenPause();
+        menuPannels.transform.GetChild(0).GetChild(2).GetComponent<Button>().onClick.Invoke();
         
         currentScreen = "Help";
         
         
         
-        back = helpObj.transform.GetChild(1).gameObject.GetComponent<Button>();
-        back.GetComponentInChildren<Text>().text = "Continue";
         
-        back.onClick.AddListener(_startGame);
-        visorCanvas.SetActive(false);
+        
         Time.timeScale = 0;
 
     }
@@ -111,14 +130,25 @@ public class PauseScript : MonoBehaviour
     private void Update()
     {
 
-        if(player == null){
+        if(!isMainMenu)
+        {
 
-            pObjName = pObjNameAlt;
+            if(player == null){
+
+                pObjName = pObjNameAlt;
             
-            player = GameObject.Find(pObjName);
-            player.SetActive(true);
+                player = GameObject.Find(pObjName);
+                player.SetActive(true);
             
             
+            }
+        }
+        
+
+        if(charInd != charList.index)
+        {
+            charInd = charList.index;
+            CharacterSelect(charInd);
         }
 
         
@@ -148,25 +178,23 @@ public class PauseScript : MonoBehaviour
     public void StartGame()
     {
         currentScreen = "Play";
-        helpObj.SetActive(false);
-        pauseUI.SetActive(false);
+        
         Cursor.lockState = CursorLockMode.Locked;
         Time.timeScale = 1;
         isPaused = false;
         visorCanvas.SetActive(true);
-        back.onClick.RemoveListener(_startGame);
+        
     }
     public void OpenPause()
     {
         currentScreen = "Pause";
         pauseUI.SetActive(true);
-        pauseUI.transform.GetChild(0).gameObject.SetActive(true);
+        menuPannels.transform.GetChild(0).GetChild(0).GetComponent<Button>().onClick.Invoke();
         Cursor.lockState = CursorLockMode.None;
         Time.timeScale = 0;
         isPaused = true;
         visorCanvas.SetActive(false);
-        settingsObj.SetActive(false);
-        helpObj.SetActive(false);
+        
        
     }
 
@@ -182,26 +210,7 @@ public class PauseScript : MonoBehaviour
        
     }
 
-    public void Settings()
-    {
-        currentScreen = "Settings";
-       
-        settingsObj.SetActive(true);
-        
-        back = settingsObj.transform.GetChild(2).gameObject.GetComponent<Button>();
-        back.onClick.RemoveListener(_back);
-        back.onClick.AddListener(_back);
-      
-        
-        previous = pauseUI.transform.GetChild(0).gameObject;
-        previous.SetActive(false);
-        helpObj.SetActive(false);
-        
-        
-
-
-
-    }
+    
 
     public void SensitivityChange(float val)
     {
@@ -214,7 +223,7 @@ public class PauseScript : MonoBehaviour
 
     public void CharacterSelect(int val)
     {
-
+        Debug.Log($"Character list value: {val}");
         switch (val)
         {
 
@@ -253,21 +262,7 @@ public class PauseScript : MonoBehaviour
 
     }
 
-    public void Help()
-    {
-
-        Debug.Log("Help");
-        currentScreen = "Help";
-        helpObj.SetActive(true);
-        settingsObj.SetActive(false);
-        previous = settingsObj;
-        back = helpObj.transform.GetChild(1).gameObject.GetComponent<Button>();
-        back.onClick.RemoveListener(_back);
-        back.onClick.AddListener(_back);
-
-
-
-    }
+    
 
     public void BackFunction()
     {
@@ -275,7 +270,7 @@ public class PauseScript : MonoBehaviour
         switch(currentScreen)
         {
             case "Help":
-            Settings();
+            //Settings();
             Debug.Log($"Back, {currentScreen}");
             break;
 
@@ -293,6 +288,34 @@ public class PauseScript : MonoBehaviour
         
     
     }
+/*
+    private SettingsSaver GetSettings()
+    {
+        if (!File.Exists(settingsPath))
+                {
+                    File.Create(settingsPath).Dispose();
+
+                    return new SettingsSaver();
+                }
+
+                using (StreamReader stream = new StreamReader(settingsPath))
+                {
+                    string json = stream.ReadToEnd();
+
+                    return JsonUtility.FromJson<SettingsSaver>(json);
+                }
+    }
+
+    public void SaveSettings(SettingsSaver settingsSaver)
+    {
+
+        using (StreamWriter stream = new StreamWriter(settingsPath))
+                {
+                    string json = JsonUtility.ToJson(settingsSaver, true);
+                    stream.Write(json);
+                }
+
+    }*/
 
     public void ConvoStatus(bool convo)
     {
