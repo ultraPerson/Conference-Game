@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Menus;
 
 public class PlentyMoreWhereThatCameFrom : MonoBehaviour
 {
@@ -13,7 +14,8 @@ public class PlentyMoreWhereThatCameFrom : MonoBehaviour
     {
         if(GameObject.Find("Player") == null && GameObject.Find("Player(Clone)") == null)
         {
-            Instantiate(playerPrefab, new Vector3(4.9f, 73.7f, -62.1f), Quaternion.identity);
+            
+            GameObject.Find("AudioZoner").transform.GetChild(0).GetComponent<AudioControl>().player = Instantiate(playerPrefab, new Vector3(4.9f, 73.7f, -62.13f), Quaternion.identity);
         }
         
     }

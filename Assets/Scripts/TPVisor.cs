@@ -40,7 +40,7 @@ namespace Characters
             private GameObject vText;
             //text game object for points
             private GameObject vScore;
-            private GameObject playerCanvas;
+            [SerializeField]private GameObject playerCanvas;
             private GameObject tBG;
             //image game object for PBG
             private GameObject pBG;
@@ -73,14 +73,14 @@ namespace Characters
 
             //public GameObject chatUIPrefab;
             //private GameObject chatUIClone;
-            private ChatBehaviour chatBehaviour;
+            //private ChatBehaviour chatBehaviour;
             [SerializeField] private PauseScript pauseScript;
             //private string savePath = $"{Application.}/highscores.json";
             // private RectTransform cTextRTrans;
             // private RectTransform cInputRTrans;
             public bool chatOpen
             { get; private set; }
-            public bool isPaused = true;
+            public bool isPaused = false;
 
             
             Scoreboard scoreboard;
@@ -107,16 +107,21 @@ namespace Characters
                 if(camControl != null){
                     Debug.Log("camControl set");
                 }
+                camControl.m_Follow = GameObject.Find("DollyCart1").transform;
+                camControl.m_LookAt = GameObject.Find("MenuStart").transform;
+                if(playerCanvas == null)
+                {
                 playerCanvas = GameObject.Find("/Main Camera/VisorCanvas");
-                vText = GameObject.Find("/Main Camera/VisorCanvas/TextBG/VisorText");
-                vScore = GameObject.Find("/Main Camera/VisorCanvas/ScoreBG/VisorScore");
-                tBG = GameObject.Find("/Main Camera/VisorCanvas/TextBG");
-                pBG = GameObject.Find("/Main Camera/VisorCanvas/ScoreBG");
+                }
+                tBG = playerCanvas.transform.GetChild(1).gameObject;//GameObject.Find("/Main Camera/VisorCanvas/TextBG");
+                pBG = playerCanvas.transform.GetChild(2).gameObject;//GameObject.Find("/Main Camera/VisorCanvas/ScoreBG");
+                vText = tBG.transform.GetChild(0).gameObject;//GameObject.Find("/Main Camera/VisorCanvas/TextBG/VisorText");
+                vScore = pBG.transform.GetChild(1).gameObject;//GameObject.Find("/Main Camera/VisorCanvas/ScoreBG/VisorScore");
 
                 
                 //pauseScript = GetComponent<PauseScript>();
                 chatOpen = false;
-                chatBehaviour = GetComponent<ChatBehaviour>();
+                //chatBehaviour = GetComponent<ChatBehaviour>();
                // cTextRTrans = chatBehaviour.chatText.GetComponent<RectTransform>();
                // cInputRTrans = chatBehaviour.inputField.GetComponent < RectTransform > ();
                 scoreHolder = pBG.transform.GetChild(0).gameObject;
@@ -237,11 +242,19 @@ namespace Characters
                     Cursor.lockState = CursorLockMode.Confined;
                 } else Cursor.lockState = CursorLockMode.Locked;*/
 
-                if (Input.GetKeyDown(KeyCode.Quote))
+                if(Input.GetKeyDown(KeyCode.Return))
+                {
+                    if(chatOpen)
+                    {
+                        GetComponent<SendMessage>().OutsideSendMessageCall();
+                    }
+                }
+
+                if (Input.GetKeyDown(KeyCode.Tab))
                 {
                     chatOpen = !chatOpen;
 
-                    chatBehaviour.OpenChatUI(chatOpen);
+                    pauseScript.OpenChatUI(chatOpen);
                     camControl.enabled = !chatOpen;
 
                     if(chatOpen){

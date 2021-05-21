@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
@@ -18,6 +19,7 @@ public class PauseScript : MonoBehaviour
     [SerializeField]private GameObject settingsObj;
     [SerializeField]private GameObject helpObj;
     [SerializeField]private GameObject menuPannels;
+    [SerializeField] private GameObject chatUI;
     //private GameObject previous;
     private GameObject player;
     
@@ -41,7 +43,8 @@ public class PauseScript : MonoBehaviour
     private string settingsPath;
 
     //private Button back;
-    private Slider mouseS;
+    public Slider mouseS
+    {get; private set;}
     private HorizontalSelector charList;
     
     
@@ -51,8 +54,10 @@ public class PauseScript : MonoBehaviour
     public bool isPaused 
     {get; private set;}
     private bool talking = false;
+    private bool chatActive = false;
     
     void Start(){
+        isPaused = false;
 
         //SettingsSaver currentSettings = GetSettings();
         //charInd = currentSettings.character;
@@ -68,14 +73,19 @@ public class PauseScript : MonoBehaviour
         //_updateSettings += SaveSettings;
         
         pauseUI = GameObject.Find("/PauseCanvas");
-        visorCanvas = GameObject.Find("/Main Camera/VisorCanvas");
+        if(visorCanvas == null)
+        {
+        visorCanvas = GameObject.Find("/Main Camera").transform.GetChild(0).gameObject;
+        }
+        Debug.Log(visorCanvas.transform.name);
         player = GameObject.Find(pObjName);
         //player.SetActive(true);
         
         
         
+        
         //root menu objects
-        camRig = transform.GetChild(1).GetComponent<CinemachineFreeLook>();
+            camRig = transform.GetChild(1).GetComponent<CinemachineFreeLook>();
         
         menuPannels = pauseUI.transform.GetChild(1).gameObject;
 
@@ -91,9 +101,10 @@ public class PauseScript : MonoBehaviour
         mouseS.minValue = 1f;
         mouseS.maxValue = 100f;
         mouseS.onValueChanged.AddListener(delegate {SensitivityChange(mouseS.value);});
-        mouseS.value = 25;
+        mouseS.value = 0;
+        SensitivityChange(mouseS.value);
 
-        charList.index = charInd;
+        //charList.index = charInd;
         
         
         
@@ -105,24 +116,30 @@ public class PauseScript : MonoBehaviour
         //pauseUI.transform.GetChild(0).GetChild(3).GetComponent<Button>().onClick.AddListener(_settings);
         //settingsObj.transform.GetChild(3).GetComponent<Button>().onClick.AddListener(_help);
         
-        
+        if(isMainMenu)
+        {
         IntroScreen();
+        } else ClosePause();
 
     }
 
     public void IntroScreen()
     {
-
+        if(visorCanvas == null)
+        {
+        visorCanvas = GameObject.Find("/Main Camera").transform.GetChild(0).gameObject;
+        }
+        currentScreen = "GameStart";
         OpenPause();
-        menuPannels.transform.GetChild(0).GetChild(2).GetComponent<Button>().onClick.Invoke();
-        
-        currentScreen = "Help";
+        //menuPannels.transform.GetChild(0).GetChild(2).GetComponent<Button>().onClick.Invoke();
         
         
+        isPaused = true;
         
         
         
-        Time.timeScale = 0;
+        
+        Time.timeScale = 1;
 
     }
     
@@ -136,7 +153,7 @@ public class PauseScript : MonoBehaviour
             if(player == null){
 
                 pObjName = pObjNameAlt;
-            
+                
                 player = GameObject.Find(pObjName);
                 player.SetActive(true);
             
@@ -178,6 +195,7 @@ public class PauseScript : MonoBehaviour
     public void StartGame()
     {
         currentScreen = "Play";
+        ClosePause();
         
         Cursor.lockState = CursorLockMode.Locked;
         Time.timeScale = 1;
@@ -191,8 +209,17 @@ public class PauseScript : MonoBehaviour
         pauseUI.SetActive(true);
         menuPannels.transform.GetChild(0).GetChild(0).GetComponent<Button>().onClick.Invoke();
         Cursor.lockState = CursorLockMode.None;
-        Time.timeScale = 0;
+        if(!isMainMenu)
+        {
+            Time.timeScale = 0;
+            menuPannels.GetComponent<WindowManager>().OpenPanel("Settings");
+        } else Time.timeScale = 1;
         isPaused = true;
+        if(visorCanvas == null)
+        {
+        visorCanvas = GameObject.Find("/Main Camera").transform.GetChild(0).gameObject;
+        }
+        player.transform.GetChild(3).gameObject.SetActive(true);
         visorCanvas.SetActive(false);
         
        
@@ -205,10 +232,19 @@ public class PauseScript : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Time.timeScale = 1;
         isPaused = false;
+        visorCanvas = GameObject.Find("/Main Camera").transform.GetChild(0).gameObject;
+        player.transform.GetChild(3).gameObject.SetActive(false);
         visorCanvas.SetActive(true);
         
        
     }
+
+    public void OpenChatUI(bool onOff)
+            {
+                chatUI.SetActive(onOff);
+                chatActive = onOff;
+                Debug.Log("Chat active: " + onOff);
+            }
 
     
 
@@ -287,6 +323,31 @@ public class PauseScript : MonoBehaviour
         }
         
     
+    }
+
+    public void OutsideSettingsChange(string type, float val)
+    {
+        switch(type)
+        {
+            case "Sensitivity":
+            mouseS.value = val;
+            SensitivityChange(val);
+            Debug.Log($"Outside call changed mouse sensitivity to: {val}");
+            break;
+
+            case "Character":
+            int ind = (int)val;
+            CharacterSelect(ind);
+            charList.index = ind;
+            charInd = ind;
+            Debug.Log($"Outside call changed character index to {(int)val}");
+            break;
+
+            default:
+            Debug.Log("Incorrect attempt to change settings from outside");
+            break;
+
+        }
     }
 /*
     private SettingsSaver GetSettings()

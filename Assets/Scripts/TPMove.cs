@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 using Scoreboards;
 using Menus;
 
@@ -17,8 +18,10 @@ namespace Characters
             public float speed = 6f;
             public Vector3 gravity;
             private Vector3 moveDir;
+            private Vector3 forcePosA;
+            private Vector3 forcePosB;
             private TPVisor tPVisor;
-
+            private bool playerControl = false;
 
             public float turnSmooth = 0.1f;
             float turnSmoothVel;
@@ -32,7 +35,7 @@ namespace Characters
             // Update is called once per frame
             void Update()
             {
-
+                if(!tPVisor.isPaused){
 
                 float accelerate = 0;
                 Mathf.Clamp(accelerate, 0f, 1f);
@@ -42,6 +45,16 @@ namespace Characters
                 Vector3 direction = new Vector3(h, 0f, z).normalized;
 
                 charAnim.SetFloat("motionSpeed", direction.magnitude);
+                charAnim.SetBool("playerControl", playerControl);
+
+
+            if(playerControl){
+                if (!controller.isGrounded)
+                    {
+                        gravity = new Vector3(0f, -.1f, 0f);
+                        controller.Move(gravity);
+                    }
+                    
 
                 //Debug.Log(charAnim.GetFloat("motionSpeed"));
 
@@ -66,15 +79,35 @@ namespace Characters
                         controller.Move((moveDir.normalized * (speed * (accelerate / 100)) * Time.deltaTime) + (gravity * Time.deltaTime));
                     }
 
-                    if (!controller.isGrounded)
-                    {
-                        gravity = new Vector3(0f, -9.8f, 0f);
-                    }
-                    else gravity = Vector3.zero;
+                    
                 }
 
 
+            } 
+            // else
+            // {
+            //     while(controller.transform.position != forcePosB)
+            //     {
+            //     controller.Move(Vector3.Lerp(forcePosA, forcePosB, Time.time));
+            //     }
+            //     if(controller.transform.position == forcePosB)
+            //     {
+            //         playerControl = true;
+            //     }
+            // }
 
+            }
+            }
+
+            public void FromTheBeach(Transform a, Transform b)
+            {
+                forcePosA = a.position;
+                forcePosB = b.position;
+                playerControl = false;
+            }
+            public void TogglePC()
+            {
+                playerControl = !playerControl;
             }
         }
         

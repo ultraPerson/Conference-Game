@@ -24,6 +24,7 @@ public class SendMessage : MonoBehaviour {
     public Text moveTextUpwards;
     private Text text;
     private GameObject scrollContent;
+    private GameObject scrollBar;
     [SerializeField] private GameObject listItem;
 
     float paddingX = -10F;
@@ -49,6 +50,7 @@ public class SendMessage : MonoBehaviour {
         pnConfiguration.UUID = System.Guid.NewGuid().ToString();
         pubnub = new PubNub(pnConfiguration);
         scrollContent = canvasObject.transform.GetChild(1).GetChild(1).GetChild(1).GetChild(0).gameObject;
+        scrollBar = canvasObject.transform.GetChild(1).GetChild(1).GetChild(2).gameObject;
 
         // Add Listener to Submit button to send messages
         Button btn = SubmitButton.GetComponent<Button>();
@@ -127,13 +129,14 @@ public class SendMessage : MonoBehaviour {
         // Assign text to the gameobject. Add visual properties to text
         var chatText = chatMessage.GetComponent<Text>();
         chatText.font = customFont;
-        chatText.color = UnityEngine.Color.blue;
+        chatText.color = new Color(125f/255f, 180f/255f, 245f/255f, 1f);
         chatText.fontSize = 18;
         
         // Assign a RectTransform to gameobject to maniuplate positioning of chat.
         RectTransform rectTransform;
         rectTransform = chatText.GetComponent<RectTransform>();
         rectTransform.sizeDelta = new Vector2(435, height);
+        
         
         // Assign the gameobject to the queue of chatmessages
         chatMessageQueue.Enqueue(chatMessage);
@@ -166,6 +169,11 @@ public class SendMessage : MonoBehaviour {
 		
 	}
 
+
+    public void OutsideSendMessageCall()
+    {
+        TaskOnClick();
+    }
     void TaskOnClick()
     {
         // When the user clicks the Submit button,
@@ -191,6 +199,8 @@ public class SendMessage : MonoBehaviour {
                     Debug.Log(string.Format("Publish Timetoken: {0}", result.Timetoken));
                 }
             });
+
+        scrollBar.GetComponent<Scrollbar>().value = 0;
 
         TextInput.text = "";
     }
