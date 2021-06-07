@@ -5,6 +5,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using UnityEngine.Audio;
 using Characters;
 using Scoreboards;
 using Cinemachine;
@@ -45,7 +46,13 @@ public class PauseScript : MonoBehaviour
     //private Button back;
     public Slider mouseS
     {get; private set;}
-    private HorizontalSelector charList;
+    public RadialSlider mainVol;
+   
+    public RadialSlider musicVol;
+    
+    public RadialSlider ambiVol;
+    
+    [SerializeField]private HorizontalSelector charList;
     
     
     private int charInd = 0;
@@ -53,6 +60,10 @@ public class PauseScript : MonoBehaviour
     [SerializeField] private bool isMainMenu = false;
     public bool isPaused 
     {get; private set;}
+    public AudioMixer mainMix;
+    [SerializeField]private string mainMG = "Master";
+    [SerializeField]private string musicMG = "Music";
+    [SerializeField]private string natureMG = "Nature";
     private bool talking = false;
     private bool chatActive = false;
     
@@ -85,14 +96,18 @@ public class PauseScript : MonoBehaviour
         
         
         //root menu objects
-            camRig = transform.GetChild(1).GetComponent<CinemachineFreeLook>();
+            camRig = GameObject.Find("TPCam").GetComponent<CinemachineFreeLook>();
         
         menuPannels = pauseUI.transform.GetChild(1).gameObject;
 
         //Settings objects
         settingsObj = menuPannels.transform.GetChild(1).GetChild(1).gameObject;
         mouseS = settingsObj.transform.GetChild(4).GetChild(1).GetComponent<Slider>();
-        charList = settingsObj.transform.GetChild(5).GetChild(1).GetComponent<HorizontalSelector>();
+        mainVol = settingsObj.transform.GetChild(5).GetChild(2).GetComponent<RadialSlider>();
+        
+        musicVol = settingsObj.transform.GetChild(5).GetChild(3).GetComponent<RadialSlider>();
+        ambiVol = settingsObj.transform.GetChild(5).GetChild(4).GetComponent<RadialSlider>();
+        charList = settingsObj.transform.GetChild(6).GetChild(1).GetComponent<HorizontalSelector>();
 
         //Help objects
         helpObj = menuPannels.transform.GetChild(1).GetChild(2).gameObject;
@@ -104,14 +119,22 @@ public class PauseScript : MonoBehaviour
         mouseS.value = 0;
         SensitivityChange(mouseS.value);
 
+        // mainVol.AddListener(delegate {VolumeChange(mainMG, mainVol.value);});
+        // VolumeChange(mainMG, mainVol.value);
+        // musicVol.onValueChanged.AddListener(delegate {VolumeChange(musicMG, musicVol.value);});
+        // VolumeChange(musicMG, musicVol.value);
+        // ambiVol.onValueChanged.AddListener(delegate {VolumeChange(natureMG, ambiVol.value);});
+        // VolumeChange(natureMG, ambiVol.value);
+        
+
         //charList.index = charInd;
         
         
         
         
-
-        charList.transform.GetChild(0).GetComponent<Button>().onClick.AddListener(_updateSettings);
-        charList.transform.GetChild(1).GetComponent<Button>().onClick.AddListener(_updateSettings);
+        
+        // charList.transform.GetChild(0).GetComponent<Button>().onClick.AddListener(_updateSettings);
+        // charList.transform.GetChild(1).GetComponent<Button>().onClick.AddListener(_updateSettings);
         menuPannels.transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Button>().onClick.AddListener(_closePause);
         //pauseUI.transform.GetChild(0).GetChild(3).GetComponent<Button>().onClick.AddListener(_settings);
         //settingsObj.transform.GetChild(3).GetComponent<Button>().onClick.AddListener(_help);
@@ -195,6 +218,7 @@ public class PauseScript : MonoBehaviour
     public void StartGame()
     {
         currentScreen = "Play";
+        isMainMenu = false;
         ClosePause();
         
         Cursor.lockState = CursorLockMode.Locked;
@@ -207,7 +231,7 @@ public class PauseScript : MonoBehaviour
     {
         currentScreen = "Pause";
         pauseUI.SetActive(true);
-        menuPannels.transform.GetChild(0).GetChild(0).GetComponent<Button>().onClick.Invoke();
+        //menuPannels.transform.GetChild(0).GetChild(0).GetComponent<Button>().onClick.Invoke();
         Cursor.lockState = CursorLockMode.None;
         if(!isMainMenu)
         {
@@ -217,9 +241,9 @@ public class PauseScript : MonoBehaviour
         isPaused = true;
         if(visorCanvas == null)
         {
-        visorCanvas = GameObject.Find("/Main Camera").transform.GetChild(0).gameObject;
+        visorCanvas = GameObject.Find("Main Camera").transform.GetChild(0).gameObject;
         }
-        player.transform.GetChild(3).gameObject.SetActive(true);
+        //transform.GetChild(3).gameObject.SetActive(true);
         visorCanvas.SetActive(false);
         
        
@@ -232,8 +256,8 @@ public class PauseScript : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Time.timeScale = 1;
         isPaused = false;
-        visorCanvas = GameObject.Find("/Main Camera").transform.GetChild(0).gameObject;
-        player.transform.GetChild(3).gameObject.SetActive(false);
+        visorCanvas = GameObject.Find("Main Camera").transform.GetChild(0).gameObject;
+        //player.transform.GetChild(3).gameObject.SetActive(false);
         visorCanvas.SetActive(true);
         
        
@@ -244,6 +268,7 @@ public class PauseScript : MonoBehaviour
                 chatUI.SetActive(onOff);
                 chatActive = onOff;
                 Debug.Log("Chat active: " + onOff);
+                isPaused = onOff;
             }
 
     
@@ -255,6 +280,47 @@ public class PauseScript : MonoBehaviour
         camRig.m_XAxis.m_MaxSpeed = val * 10;
         camRig.m_YAxis.m_MaxSpeed = val / 30;
 
+    }
+    public void MainVolumeChange(float val)
+    {
+
+        float volume;
+        
+        
+            
+            mainMix.GetFloat("masterVol", out volume);
+            mainMix.SetFloat("masterVol", val - 80);
+            Debug.Log($"Master vol changed to {volume}");
+            
+        
+    }
+
+    public void MusicVolumeChange(float val)
+    {
+
+        float volume;
+        
+        
+            
+            mainMix.GetFloat("musicVol", out volume);
+            mainMix.SetFloat("musicVol", val - 80);
+            Debug.Log($"Music vol changed to {volume}");
+            
+        
+    }
+
+    public void AmbientVolumeChange(float val)
+    {
+
+        float volume;
+        
+        
+            
+            mainMix.GetFloat("ambiVol", out volume);
+            mainMix.SetFloat("ambiVol", val - 80);
+            Debug.Log($"Ambient vol changed to {volume}");
+            
+        
     }
 
     public void CharacterSelect(int val)
@@ -294,6 +360,11 @@ public class PauseScript : MonoBehaviour
             Debug.Log("Character selection error");
             break;
 
+        }
+
+        if(GetComponent<TPMove>().playerControl == false)
+        {
+            GetComponent<TPMove>().TogglePC();
         }
 
     }

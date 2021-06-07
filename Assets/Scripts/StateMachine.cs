@@ -48,9 +48,11 @@ public class StateMachine : MonoBehaviour
 
         camMenu = GameObject.Find("MenuStart").transform;
         camGame = GameObject.Find("GameStart").transform;
+        
 
         camControl.m_XAxis.m_InputAxisName = "";
         camControl.m_YAxis.m_InputAxisName = "";
+        camControl.GetComponent<CinemachineCollider>().enabled = false;
 
         
         dolly1.m_Speed = 0;
@@ -70,9 +72,10 @@ public class StateMachine : MonoBehaviour
         pauseMenu.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(4).gameObject.SetActive(false);
         pauseMenu.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(1).gameObject.SetActive(true);
         pauseMenu.SetActive(false);
-        dolly1.m_Speed = 20;
+        dolly1.m_Speed = 1;
         GetComponent<PauseScript>().StartGame();
-        GetComponent<TPMove>().FromTheBeach(camMenu, camGame);
+        //GetComponent<TPMove>().FromTheBeach(camMenu, camGame);
+        camControl.m_LookAt = GetComponent<Transform>().GetChild(1);
         //transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
         
 
@@ -85,17 +88,23 @@ public class StateMachine : MonoBehaviour
         //     //
             
         // }
-        if(dolly1.m_Position >= 81 && readyFreddy == false)
+        if(dolly1.m_Position >= 2 && readyFreddy == false)
         {
+            
+            camControl.GetComponent<CinemachineCollider>().enabled = true;
             camControl.m_Follow = this.gameObject.transform;
-            camControl.m_LookAt = GetComponent<Transform>().GetChild(2);
+            
             camControl.m_XAxis.m_InputAxisName = "Mouse X";
             camControl.m_YAxis.m_InputAxisName = "Mouse Y";
+            
             if(GetComponent<PauseScript>().mouseS.value == 1)
             {
                 GetComponent<PauseScript>().OutsideSettingsChange("Sensitivity", 25);
             }
+            if(GetComponent<TPMove>().playerControl == false)
+            {
             GetComponent<TPMove>().TogglePC();
+            }
             readyFreddy = true;
         }
     }

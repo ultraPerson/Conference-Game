@@ -21,7 +21,8 @@ namespace Characters
             private Vector3 forcePosA;
             private Vector3 forcePosB;
             private TPVisor tPVisor;
-            private bool playerControl = false;
+            public bool playerControl
+            {get; private set;}
 
             public float turnSmooth = 0.1f;
             float turnSmoothVel;
@@ -29,26 +30,31 @@ namespace Characters
             void Start()
             {
                 tPVisor = GetComponent<TPVisor>();
-                cam = GameObject.Find("/Main Camera").GetComponent<Transform>();
+                cam = GameObject.Find("Main Camera").GetComponent<Transform>();
+                playerControl = false;
             }
 
             // Update is called once per frame
-            void Update()
+            void FixedUpdate()
             {
-                if(!tPVisor.isPaused){
 
-                float accelerate = 0;
-                Mathf.Clamp(accelerate, 0f, 1f);
                 float h = Input.GetAxisRaw("Horizontal");
                 float z = Input.GetAxisRaw("Vertical");
+
+                if(!tPVisor.isPaused){
+
+                float accelerate = 100f;
+                //Mathf.Clamp(accelerate, 0f, 1f);
+                
                 //float fallSpeed = 0;
                 Vector3 direction = new Vector3(h, 0f, z).normalized;
 
                 charAnim.SetFloat("motionSpeed", direction.magnitude);
-                charAnim.SetBool("playerControl", playerControl);
+                
 
 
-            if(playerControl){
+            
+                
                 if (!controller.isGrounded)
                     {
                         gravity = new Vector3(0f, -.1f, 0f);
@@ -58,15 +64,11 @@ namespace Characters
 
                 //Debug.Log(charAnim.GetFloat("motionSpeed"));
 
-                if (!tPVisor.chatOpen)
-                {
+                
 
                     if (direction.magnitude >= 0.1f)
                     {
-                        while (accelerate < 100)
-                        {
-                            accelerate += 0.1f;
-                        }
+                        
 
                         float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
                         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVel, turnSmooth);
@@ -83,7 +85,7 @@ namespace Characters
                 }
 
 
-            } 
+             
             // else
             // {
             //     while(controller.transform.position != forcePosB)
@@ -96,18 +98,19 @@ namespace Characters
             //     }
             // }
 
-            }
+            
             }
 
-            public void FromTheBeach(Transform a, Transform b)
-            {
-                forcePosA = a.position;
-                forcePosB = b.position;
-                playerControl = false;
-            }
+            // public void FromTheBeach(Transform a, Transform b)
+            // {
+            //     forcePosA = a.position;
+            //     forcePosB = b.position;
+            //     playerControl = false;
+            // }
             public void TogglePC()
             {
                 playerControl = !playerControl;
+                //charAnim.SetBool("playerControl", playerControl);
             }
         }
         

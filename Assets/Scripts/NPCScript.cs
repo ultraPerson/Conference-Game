@@ -123,17 +123,16 @@ namespace Characters
                 if (hasQuiz)
                 {
                     //show quiz option
-                    //quizCanvas.SetActive(true);
+                    
                     quizCanvas.OpenNotification();
 
                 }
+                if(!met)
+                {
 
                 Converse();
-/*
-                if (!met)
-                {
-                    Converse();
-                }*/
+                }
+
 
 
 
@@ -141,28 +140,19 @@ namespace Characters
 
             public void Converse()
             {
-                // Speak(dialoguePos, met);
-                // anim.Play("TalkingFace");
-
-               /* if (!met)
-                {
-                    
-                    dialogueBoxText.text = dialogue[0];
+                    if(!met)
+                    {
                     met = true;
-                }
-                else //try
-                    {*/
-                    met = true;
+                    }
+                    try
+                    {
                         dialogueBoxText.text = dialogue[ChooseDialogue(dialoguePos)];
+                    }
+                    catch(IndexOutOfRangeException e)
+                    {
+                        dialogueBoxText.text = dialogue[dialogue.Length - 1];
+                    }
                         interfaceHelp.text = "Click to continue...";
-                    //}
-
-                //face.GetComponent<SpriteRenderer>().sprite = faces[new System.Random().Next(faces.Length - 1)];
-                  
-
-
-
-
 
             }
            
@@ -177,10 +167,9 @@ namespace Characters
                 {
                     dialogueBoxText.text = quizQuestions[ChooseQuestion(qLevel)];
                     interfaceHelp.text = "'T' for true, 'F' for false";
+                    Debug.Log($"Qlevel: {qLevel}");
 
-                    //quizCanvas.transform.position = dialogueBox.transform.position;
-                    //quizCanvas.GetComponent<RectTransform>().sizeDelta = dialogueBox.GetComponent<RectTransform>().sizeDelta;
-                    //dialogueBox.SetActive(false);
+                    
                 }
                 else
 
@@ -209,20 +198,27 @@ namespace Characters
 
             int ChooseDialogue(int pos)
             {
+                Debug.Log("dialoguePos set to " + pos);
                 if (pos >= dialogue.Length)
                 {
-                    dialoguePos = dialogue.Length -1;
-                    return dialoguePos;
+                    dialoguePos = dialogue.Length;
+                    return dialoguePos - 1;
+                } else if(pos == 0)
+                {
+                    dialoguePos ++;
+                    return 0;
+                    
                 }
                 else 
                 {
                     
                     dialoguePos ++;
-                    Debug.Log("dialoguePos set to " + pos);
+                    
                     return pos;
 
 
                 }
+                
             }
 
             void EndQuiz()
@@ -231,7 +227,7 @@ namespace Characters
                 quizing = false;
                 quizCanvas.CloseNotification();
                 //dialogueBox.SetActive(true);
-                Interact();
+                Converse();
             }
 
             void AnswerCheck(bool ans)
@@ -243,7 +239,7 @@ namespace Characters
                 if (ans == correctAnswers[qLevel])
                 {
 
-                    Debug.Log(qLevel);
+                    //Debug.Log(qLevel);
                     
                     vScript.points++;
                     dialogueBoxText.text = $"Correct ansewer: {ans.ToString()}. Excellent!\n";
@@ -338,7 +334,10 @@ namespace Characters
 
                     if (Input.GetKeyDown(KeyCode.Mouse0))
                     {
-                        Converse();
+                        if(!quizing)
+                        {
+                            Converse();
+                        }
                         Debug.Log("Click");
                     }
 
@@ -351,7 +350,7 @@ namespace Characters
                             if (Input.GetKeyDown(KeyCode.Return))
                             {
                                 QuizTime();
-                                Debug.Log("ran QuizTime");
+                                //Debug.Log("ran QuizTime");
                             }
                         }
                         else

@@ -10,7 +10,10 @@ public class SetPhoto : MonoBehaviour
 
     public bool isProfile = false;
     bool profileSet;
-    GameObject thisPic;
+    bool affCheck = false;
+    GameObject profPic;
+    [SerializeField] GameObject affPic;
+    GameObject name;
 
     [SerializeField] string profileDestination;
 
@@ -19,7 +22,9 @@ public class SetPhoto : MonoBehaviour
     void Start()
     {
 
-        thisPic = transform.GetChild(0).gameObject;
+        profPic = transform.GetChild(0).gameObject;
+        affPic = transform.GetChild(3).gameObject;
+        name = transform.GetChild(4).gameObject;
 
         if(!string.IsNullOrEmpty(profileDestination))
         {
@@ -29,6 +34,20 @@ public class SetPhoto : MonoBehaviour
         {
             isProfile = false;
         }
+
+        if(isProfile && !profileSet && profPic.GetComponent<Image>().sprite.name == "avatar_placeholder")
+        {   
+            
+            GetPic(profileDestination);
+        }
+
+        if(affPic.GetComponent<Image>().sprite.name == "Crop")
+        {
+            affPic.SetActive(false);
+            name.GetComponent<RectTransform>().sizeDelta = new Vector2(.6f, name.GetComponent<RectTransform>().sizeDelta.y);
+            name.GetComponent<RectTransform>().localPosition = new Vector3(0.186f, name.transform.localPosition.y, name.transform.localPosition.z);
+            affCheck = true;
+        }
         
     }
 
@@ -36,11 +55,7 @@ public class SetPhoto : MonoBehaviour
     void Update()
     {
 
-        if(isProfile && !profileSet && thisPic.GetComponent<Image>().sprite.name == "Chomp")
-        {   
-            
-            GetPic(profileDestination);
-        }
+        
 
         
     }
@@ -60,9 +75,9 @@ public class SetPhoto : MonoBehaviour
     void SetPic(Texture2D pic)
     {
         
-        thisPic.GetComponent<Image>().sprite = Sprite.Create(pic, new Rect(0,0, pic.width, pic.height), new Vector2(0.5f, 0.5f));
-        //thisPic.GetComponent<SpriteRenderer>().size = new Vector2(100,150);
-        //thisPic.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+        profPic.GetComponent<Image>().sprite = Sprite.Create(pic, new Rect(0,0, pic.width, pic.height), new Vector2(0.5f, 0.5f));
+        //profPic.GetComponent<SpriteRenderer>().size = new Vector2(100,150);
+        //profPic.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
     }
 
     void OnDestroy () => Dispose();

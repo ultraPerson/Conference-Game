@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 using Menus;
 
 public class AudioControl : MonoBehaviour
@@ -10,11 +11,13 @@ public class AudioControl : MonoBehaviour
 
     AudioSource music;
     AudioSource ocean;
+    
     bool indoors = false;
     public float maxVolume;
     private float targetVolume;
     private float dToP;
     private RaycastHit earshot;
+    private int soundPass = 1<<8;
     private Vector3 objPos;
     private Collider backBounds;
     private Vector3 pPos;
@@ -23,10 +26,12 @@ public class AudioControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        soundPass = ~soundPass;
         backBounds = oceanWall.GetComponent<Collider>();
         //indoor = transform.GetChild(0).gameObject;
         music = GetComponent<AudioSource>();
         ocean = GameObject.Find("Beach").GetComponent<AudioSource>();
+        
         
         if(player == null)
         {
@@ -47,42 +52,43 @@ public class AudioControl : MonoBehaviour
 
         pPos = player.transform.position;
 
-        objPos = backBounds.  ClosestPointOnBounds(oceanWall.transform.position);
+        objPos = backBounds.ClosestPointOnBounds(oceanWall.transform.position);
+        Debug.DrawRay(pPos, new Vector3(-100,0,0), Color.green);
 
-        if(Physics.Raycast(pPos, objPos, out earshot))
+        if(Physics.Raycast(pPos, new Vector3(-100,0,0), out earshot, 100, soundPass))
         {
-            if(earshot.transform.gameObject.tag == "SoundBlocker")
+            if(earshot.transform.gameObject.tag == "OpenOcean")
             {
 
-            indoors = true;
-            Debug.Log("ocean blocked");
+            indoors = false;
+            //Debug.Log("ocean heard");
             }
 
-        } else indoors = false;
+        } else 
+    {
+        indoors = true;
+        //Debug.Log("Ocean blocked");
+    }
 
         if(indoors == false)
         {
             ocean.priority = 0;
             music.priority = 1;
+            ocean.volume = 0.774f;
+
 
             
         } else 
         {
             music.priority = 0;
             ocean.priority = 1;
+            ocean.volume = 0.1f;
             
             
             
         }
 
-        if(ocean.volume < .75f && ocean.priority == 0)
-            {
-                ocean.volume += 0.1f * Time.deltaTime;
-            } else if(ocean.volume > .25f)
-            {
-                ocean.volume -= 1f * Time.deltaTime;
-            }
-
+        
 
         
     }

@@ -20,9 +20,10 @@ public class ChatStyler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        screen = new Vector2(Screen.width, Screen.height);
-        mainBG.sizeDelta = new Vector2(screen.x/3, screen.y);
-        bG2.sizeDelta = new Vector2(mainBG.sizeDelta.x -50, mainBG.sizeDelta.y - 30);
+         screen = new Vector2(Screen.width, Screen.height);
+        // mainBG.sizeDelta = new Vector2(screen.x/3, screen.y);
+        // bG2.sizeDelta = new Vector2(mainBG.sizeDelta.x -50, mainBG.sizeDelta.y - 30);
+        bG2.GetChild(1).GetChild(0).GetComponent<RectTransform>().position = new Vector3(281f, screen.y - 30f, 0f);
 
         
     }
