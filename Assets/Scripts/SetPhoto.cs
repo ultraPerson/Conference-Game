@@ -41,7 +41,7 @@ public class SetPhoto : MonoBehaviour
             GetPic(profileDestination);
         }
 
-        if(affPic.GetComponent<Image>().sprite.name == "Crop")
+        if(this.tag != "OtherPoster" && affPic.GetComponent<Image>().sprite.name == "Crop")
         {
             affPic.SetActive(false);
             name.GetComponent<RectTransform>().sizeDelta = new Vector2(.6f, name.GetComponent<RectTransform>().sizeDelta.y);

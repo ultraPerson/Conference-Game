@@ -64,8 +64,8 @@ namespace Characters
             private float startingFOV;
             public float currentFOV;
             
-            private float screenW = Screen.width;
-            private float screenH = Screen.height;
+            private float screenW;
+            private float screenH;
             //private float totalWidthT;
             //private float totalHeightT;
             private Vector2 textPos;
@@ -96,6 +96,8 @@ namespace Characters
             // Start is called before the first frame update
             void Start()
             {
+                screenW = Screen.width;
+                screenH = Screen.height;
                 
 
                 if(string.IsNullOrEmpty(playerName))
@@ -156,7 +158,7 @@ namespace Characters
                 //rectTransform = vScan.GetComponent<RectTransform>();
                 
                 //Vscan and TBG coordinates 
-                textPos = new Vector2(0, 10);
+                textPos = new Vector2(0, 0);
                 //vpoints and PBG coordinates
                 pointPos = new Vector2(screenW, screenH);
 
@@ -167,13 +169,16 @@ namespace Characters
                 pTextTrans.position = pBGTrans.position;
                 pTextTrans.sizeDelta = new Vector2(pBGTrans.sizeDelta.x/2, pBGTrans.sizeDelta.y / 8);
                 scoreHolder.transform.position = new Vector2(pointPos.x, pointPos.y - pBGTrans.sizeDelta.y);
-                
+                pointPos = new Vector2(screenW, screenH);
+
+
+                tBGTrans.position = textPos;
                 pBGTrans.sizeDelta = new Vector2(screenW / 6, screenH / 2);
                 tBGTrans.sizeDelta = new Vector2(screenW, screenH / 3);
                 vTextTrans.sizeDelta = new Vector2(screenW - 20, (screenH / 3) - 10);
                 vTextTrans.position = new Vector2(10, 5);
 
-                
+                Debug.Log(Screen.currentResolution);
                 //visor.renderMode = RenderMode.ScreenSpaceOverlay;
 
 
@@ -183,15 +188,13 @@ namespace Characters
             void Update()
 
             {
+
+                
+
                 isPaused = pauseScript.isPaused;
                 
-                if(Screen.height != screenH || Screen.width != screenW)
-                {
-
-                screenH = Screen.height;
-                screenW = Screen.width;
-
-                }
+                
+                
 
                 vPoints.text = playerName + " score: " + points.ToString();
 
@@ -216,7 +219,7 @@ namespace Characters
                     {
                         tBG.SetActive(false);
                     }
-                    zoomTarget -= zoomRate/50;
+                    zoomTarget -= zoomRate/40.37f;
 
                     currentFOV -= zoomRate;
                 } else
@@ -422,7 +425,7 @@ namespace Characters
                         VTextChange(npcName, false);
                     }
                 }
-                else if (whatType == "PictureFrame")
+                else if (whatType == "PictureFrame" || whatType == "OtherPoster")
                 {
 
 
@@ -458,7 +461,7 @@ namespace Characters
 
                     scoreboard.AddEntry(scoreData);
 
-                    if (what.tag == "PictureFrame")
+                    if (what.tag == "PictureFrame" || what.tag == "OtherPoster")
                     {
                         what.GetComponent<OpenPage>().newLog = false;
                         what.GetComponent<OpenPage>().GoToURL();
@@ -474,7 +477,7 @@ namespace Characters
                 }
                 else if (!seeingNew)
                 {
-                    if (what.tag == "PictureFrame")
+                    if (what.tag == "PictureFrame" || what.tag == "OtherPoster")
                     {
                         what.GetComponent<OpenPage>().newLog = false;
                         what.GetComponent<OpenPage>().GoToURL();
