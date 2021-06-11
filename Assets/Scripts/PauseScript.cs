@@ -46,11 +46,11 @@ public class PauseScript : MonoBehaviour
     //private Button back;
     public Slider mouseS
     {get; private set;}
-    public RadialSlider mainVol;
+    public Slider mainVol;
    
-    public RadialSlider musicVol;
+    public Slider musicVol;
     
-    public RadialSlider ambiVol;
+    public Slider ambiVol;
     
     [SerializeField]private HorizontalSelector charList;
     
@@ -103,10 +103,10 @@ public class PauseScript : MonoBehaviour
         //Settings objects
         settingsObj = menuPannels.transform.GetChild(1).GetChild(1).gameObject;
         mouseS = settingsObj.transform.GetChild(4).GetChild(1).GetComponent<Slider>();
-        mainVol = settingsObj.transform.GetChild(5).GetChild(2).GetComponent<RadialSlider>();
+        mainVol = settingsObj.transform.GetChild(5).GetChild(2).GetComponent<Slider>();
         
-        musicVol = settingsObj.transform.GetChild(5).GetChild(3).GetComponent<RadialSlider>();
-        ambiVol = settingsObj.transform.GetChild(5).GetChild(4).GetComponent<RadialSlider>();
+        musicVol = settingsObj.transform.GetChild(5).GetChild(3).GetComponent<Slider>();
+        ambiVol = settingsObj.transform.GetChild(5).GetChild(4).GetComponent<Slider>();
         charList = settingsObj.transform.GetChild(6).GetChild(1).GetComponent<HorizontalSelector>();
 
         //Help objects
@@ -114,10 +114,28 @@ public class PauseScript : MonoBehaviour
 
         //settings variables
         mouseS.minValue = 1f;
-        mouseS.maxValue = 100f;
+        mouseS.maxValue = 80f;
         mouseS.onValueChanged.AddListener(delegate {SensitivityChange(mouseS.value);});
         mouseS.value = 0;
         SensitivityChange(mouseS.value);
+
+        mainVol.minValue = 0f;
+        mainVol.maxValue = 70f;
+        mainVol.value = 50f;
+        mainVol.onValueChanged.AddListener(delegate {MainVolumeChange(mainVol.value);});
+        MainVolumeChange(mainVol.value);
+
+        musicVol.minValue = 15f;
+        musicVol.maxValue = 60f;
+        musicVol.value = 50f;
+        musicVol.onValueChanged.AddListener(delegate {MusicVolumeChange(musicVol.value);});
+        MusicVolumeChange(musicVol.value);
+
+        ambiVol.minValue = 15f;
+        ambiVol.maxValue = 60f;
+        ambiVol.value = 50f;
+        ambiVol.onValueChanged.AddListener(delegate {AmbientVolumeChange(ambiVol.value);});
+        AmbientVolumeChange(ambiVol.value);
 
         // mainVol.AddListener(delegate {VolumeChange(mainMG, mainVol.value);});
         // VolumeChange(mainMG, mainVol.value);
@@ -197,7 +215,7 @@ public class PauseScript : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (!talking)
+            if (!talking && !isMainMenu)
             {
                 isPaused = !isPaused;
             }
@@ -289,7 +307,7 @@ public class PauseScript : MonoBehaviour
         
             
             mainMix.GetFloat("masterVol", out volume);
-            mainMix.SetFloat("masterVol", val - 80);
+            mainMix.SetFloat("masterVol", val -50);
             Debug.Log($"Master vol changed to {volume}");
             
         
@@ -303,7 +321,7 @@ public class PauseScript : MonoBehaviour
         
             
             mainMix.GetFloat("musicVol", out volume);
-            mainMix.SetFloat("musicVol", val - 80);
+            mainMix.SetFloat("musicVol", val - 50);
             Debug.Log($"Music vol changed to {volume}");
             
         
@@ -317,7 +335,7 @@ public class PauseScript : MonoBehaviour
         
             
             mainMix.GetFloat("ambiVol", out volume);
-            mainMix.SetFloat("ambiVol", val - 80);
+            mainMix.SetFloat("ambiVol", val - 50);
             Debug.Log($"Ambient vol changed to {volume}");
             
         
@@ -347,14 +365,14 @@ public class PauseScript : MonoBehaviour
             player.GetComponent<TPMove>().charAnim = fem.GetComponent<Animator>();
             break;
 
-            case 2:
+            // case 2:
             
-            player.transform.GetChild(0).gameObject.SetActive(true);
-            player.transform.GetChild(3).gameObject.SetActive(false);
-            player.transform.GetChild(4).gameObject.SetActive(false);
-            mann = GameObject.Find($"{pObjName}/Mannequine");
-            player.GetComponent<TPMove>().charAnim = mann.GetComponent<Animator>();
-            break;
+            // player.transform.GetChild(0).gameObject.SetActive(true);
+            // player.transform.GetChild(3).gameObject.SetActive(false);
+            // player.transform.GetChild(4).gameObject.SetActive(false);
+            // mann = GameObject.Find($"{pObjName}/Mannequine");
+            // player.GetComponent<TPMove>().charAnim = mann.GetComponent<Animator>();
+            // break;
 
             default:
             Debug.Log("Character selection error");
