@@ -43,6 +43,8 @@ public class PauseScript : MonoBehaviour
     private string pObjNameAlt = "Player(Clone)";
     private string settingsPath;
 
+    
+
     //private Button back;
     public Slider mouseS
     {get; private set;}

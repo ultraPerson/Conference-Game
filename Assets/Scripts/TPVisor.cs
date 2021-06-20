@@ -63,6 +63,10 @@ namespace Characters
             public float zoomRate;
             private float startingFOV;
             public float currentFOV;
+
+            private Image retical;
+            private Sprite targetEmpty;
+            [SerializeField] private Sprite targetFull;
             
             private float screenW;
             private float screenH;
@@ -96,6 +100,7 @@ namespace Characters
             // Start is called before the first frame update
             void Start()
             {
+                
                 screenW = Screen.width;
                 screenH = Screen.height;
                 
@@ -113,6 +118,8 @@ namespace Characters
                 //chatUIClone = Instantiate(chatUIPrefab);
 
                 cam = Camera.main;
+                retical = cam.gameObject.transform.GetChild(0).GetChild(0).GetComponent<Image>();
+                targetEmpty = retical.sprite;
                 camControl = GameObject.Find("TPCam").GetComponent<CinemachineFreeLook>();
                 startingFOV = cam.fieldOfView;
                 currentFOV = startingFOV;
@@ -391,11 +398,13 @@ namespace Characters
                 {
 
                     tBG.SetActive(false);
+                    retical.sprite = targetEmpty;
                     
 
                 } else
                     {
                         tBG.SetActive(true);
+                        retical.sprite = targetFull;
                         // float toAlpha = 1f;
                         // for(float i = 0.5f; i < toAlpha; i+= 0.1f)
                         // {
@@ -412,6 +421,7 @@ namespace Characters
                     //Debug.Log("Yup, that's an NPC");
                     string npcName = seen.GetComponentInParent<NPCScript>().nPCName;
                     bool met = seen.GetComponentInParent<NPCScript>().met;
+                    //seen.GetComponent<NPCInfo>().playerLooking = true;
 
                     if (!met)
                     {
