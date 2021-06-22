@@ -42,7 +42,8 @@ namespace Characters
             //public GameObject vision;
 
             //private bool seesYou = false;
-            private int qLevel = 0;
+            public int qLevel;
+            
             private int numberOfQ;
             private bool quizing = false;
             private bool conversing = false;
@@ -50,8 +51,14 @@ namespace Characters
             [SerializeField] private bool[] correctAnswers = { true, false };
             [SerializeField] private string[] extraResponse = {"The answer you gave was incorrect!", "My father was a winged pringle."};
             private bool feedbackMode = false;
-            [SerializeField] private string[] quizQuestions = { "This statement is false?", "What is the difference between a duck?" };
-            private int dialoguePos = 0;
+            [SerializeField] private string[] QuizQuestions = {"This statement is false?", "What is the difference between a duck?"};
+            public string[] quizQuestions 
+            {
+                get{return QuizQuestions;}
+                private set{quizQuestions = QuizQuestions;}
+            }
+            
+            public int dialoguePos = 0;
             //private Animation anim;
             private TPVisor vScript;
    
@@ -78,6 +85,9 @@ namespace Characters
                 {
                     Array.Resize(ref extraResponse, numberOfQ);
                 }
+                
+                pauseCtrl = GameObject.Find("Player");
+                vScript = pauseCtrl.GetComponent<TPVisor>();
 
 
             }
@@ -133,6 +143,8 @@ namespace Characters
                 Converse();
                 }
 
+                pauseCtrl.transform.GetChild(9).GetComponent<NPCInfo>().CardClear();
+
 
 
 
@@ -140,9 +152,10 @@ namespace Characters
 
             public void Converse()
             {
-                    if(!met)
+                    if(dialoguePos >= dialogue.Length - 1)
                     {
-                    met = true;
+                        met = true;
+                        vScript.points++;
                     }
                     try
                     {
@@ -232,7 +245,7 @@ namespace Characters
 
             void AnswerCheck(bool ans)
             {
-                TPVisor vScript = pauseCtrl.GetComponent<TPVisor>();
+                 
                 feedbackMode = true;
 
 
@@ -278,6 +291,7 @@ namespace Characters
                 // Debug.Log(Cursor.lockState);
                 //quizing = false;
                 quizCanvas.CloseNotification();
+                vScript.PerspectiveChange(true);
                 //face.GetComponent<SpriteRenderer>().sprite = faces[0];
             }
 
@@ -290,6 +304,7 @@ namespace Characters
                     if(GameObject.Find("Player"))
                     {
                         pauseCtrl = GameObject.Find("Player");
+                        vScript = pauseCtrl.GetComponent<TPVisor>();
                     } else pauseCtrl = GameObject.Find("Player(Clone)");
                 }
                 //Mathf.Clamp(dialoguePos, 0, dialogue.Length);

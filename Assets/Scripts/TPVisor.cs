@@ -48,14 +48,20 @@ namespace Characters
             public string playerName;
 
             private int layerMask = 1 << 8;
+            public int LayerMask
+            {get {return layerMask;}}
+            
             //private float maxDist;
             public Ray lookAt
             {
                 get;
                 private set;
             }
+            [SerializeField]
+            private NPCInfo littleInfoCanv;
 
-            private Camera cam;
+            public Camera cam
+            {get; private set;}
             private CinemachineFreeLook camControl;
             private GameObject scoreHolder;
             private bool seeingNew = false;
@@ -75,6 +81,8 @@ namespace Characters
             private Vector2 textPos;
             private Vector2 pointPos;
             private RaycastHit seen;
+            public RaycastHit Seen
+            {get {return seen;}}
             private GameObject what;
             private Text whatDesc;
 
@@ -91,6 +99,9 @@ namespace Characters
             // private RectTransform cInputRTrans;
             public bool chatOpen
             { get; private set; }
+            public bool thirdPerson
+            {get; private set;}
+            
             public bool isPaused = false;
 
             
@@ -100,7 +111,7 @@ namespace Characters
             // Start is called before the first frame update
             void Start()
             {
-                
+                thirdPerson = true;
                 screenW = Screen.width;
                 screenH = Screen.height;
                 
@@ -218,27 +229,9 @@ namespace Characters
                 //Debug.DrawRay(cam.transform.position, Vector3.forward * 100, Color.green);
                 
 
+            
 
-
-                if(zoom)
-                {
-                    if(tBG.activeInHierarchy)
-                    {
-                        tBG.SetActive(false);
-                    }
-                    zoomTarget -= zoomRate/40.37f;
-
-                    currentFOV -= zoomRate;
-                } else
-                {
-                    //tBG.SetActive(true);
-                    zoomTarget += zoomRate/10;
-                    currentFOV += zoomRate;
-                }
-                currentFOV = Mathf.Clamp(currentFOV, 20, startingFOV);
-                cam.fieldOfView = currentFOV;
-                zoomTarget = Mathf.Clamp(zoomTarget, -0.5f, 0);
-                camTarget.transform.localPosition = new Vector3(zoomTarget, .414f, 0f);
+                
 
                 if(!isPaused)
                 {
@@ -261,10 +254,12 @@ namespace Characters
                     if(!zoom)
                     {
 
+                        if(thirdPerson)
+                        {
                         if (Physics.Raycast(lookAt, out seen, 5, layerMask))
                         {
                         
-                        
+                            
                             what = seen.transform.gameObject;
                         
 
@@ -276,16 +271,19 @@ namespace Characters
                         }
 
 
-
+                        WhatAmISeeing(seen);
                          
                         }
                         else
                         {
                             seeingNew = false;
                             what = whatDefault;
+                            littleInfoCanv.playerLooking = false;
+                     
+                        }
                         }
 
-                        WhatAmISeeing(what);
+                        
 
                         if (Input.GetKeyDown(KeyCode.Tab))
                         {
@@ -337,8 +335,9 @@ namespace Characters
                         GetComponent<SendMessage>().OutsideSendMessageCall();
                     }
                 }
+            
 
-                
+                cam.fieldOfView = currentFOV;
 
             }
 
@@ -347,16 +346,25 @@ namespace Characters
 
                 
 
-                // RectTransform[] heldScores = scoreHolder.GetComponentsInChildren<RectTransform>();
-                // foreach(RectTransform dimensions in heldScores)
-                // {
-                //     dimensions.localScale = new Vector2(1,1);
-                    
-                //     // if(dimensions.gameObject.tag == "TextBox")
-                //     // {
-                //     //     dimensions.sizeDelta = new Vector2(pBGTrans.sizeDelta.x/2 - 5, pBGTrans.sizeDelta.y / 8);
-                //     // } else dimensions.sizeDelta = new Vector2(pBGTrans.sizeDelta.x - 10, pBGTrans.sizeDelta.y / 8);
-                // }
+                if(zoom)
+                {
+                    if(tBG.activeInHierarchy)
+                    {
+                        tBG.SetActive(false);
+                    }
+                    //zoomTarget -= zoomRate/40.37f;
+
+                    currentFOV -= zoomRate;
+                } else
+                {
+                    //tBG.SetActive(true);
+                    //zoomTarget += zoomRate/10;
+                    currentFOV += zoomRate;
+                }
+                currentFOV = Mathf.Clamp(currentFOV, 20, startingFOV);
+                
+                //zoomTarget = Mathf.Clamp(zoomTarget, -0.3f, .3f);
+                //camTarget.transform.localPosition = new Vector3(zoomTarget, .414f, 0f);
 
             }
 
@@ -380,16 +388,12 @@ namespace Characters
 
             }
 
-            void WhatAmISeeing(GameObject seen)
+            void WhatAmISeeing(RaycastHit seen)
             {
 
                 
-                string whatType = seen.tag;
-/*
-                if(whatType == "OverFrame")
-                {
-                    whatType = seen.transform.parent.tag;
-                } else whatType = seen.tag;*/
+                string whatType = seen.transform.gameObject.tag;
+
 
 
                 Image lastBG = tBG.GetComponent<Image>();
@@ -400,16 +404,13 @@ namespace Characters
                     tBG.SetActive(false);
                     retical.sprite = targetEmpty;
                     
+                    
 
                 } else
                     {
-                        tBG.SetActive(true);
+                        
                         retical.sprite = targetFull;
-                        // float toAlpha = 1f;
-                        // for(float i = 0.5f; i < toAlpha; i+= 0.1f)
-                        // {
-                        //     lastBG.color = new Color(lastBG.color.r, lastBG.color.b, lastBG.color.g, i);
-                        // }
+                      
                     
 
                 
@@ -419,9 +420,11 @@ namespace Characters
                 {
                     //NPCScript whatScript;
                     //Debug.Log("Yup, that's an NPC");
-                    string npcName = seen.GetComponentInParent<NPCScript>().nPCName;
-                    bool met = seen.GetComponentInParent<NPCScript>().met;
+                    string npcName = seen.transform.GetComponentInParent<NPCScript>().nPCName;
+                    bool met = seen.transform.GetComponentInParent<NPCScript>().met;
                     //seen.GetComponent<NPCInfo>().playerLooking = true;
+                    littleInfoCanv.TextPlacingFunction(seen.transform.gameObject, seen.point);
+                    littleInfoCanv.playerLooking = true;
 
                     if (!met)
                     {
@@ -437,21 +440,28 @@ namespace Characters
                 }
                 else if (whatType == "PictureFrame" || whatType == "OtherPoster")
                 {
+                    tBG.SetActive(true);
 
 
                     bool logCheck = what.GetComponent<OpenPage>().newLog;
-                    string description = seen.GetComponent<Text>().text;
+                    string description = seen.transform.GetComponent<Text>().text;
                     seeingNew = logCheck;
                     VTextChange(description, logCheck);
 
                 } else if(whatType == "MiscObj")
                 {
+                    tBG.SetActive(true);
                     if(seen.transform.name == "Ball")
                     {
                         VTextChange("Kick", false);
                     }
                 }
-                 else VTextChange(" ", false);
+                 else
+                 {
+                     
+                      VTextChange(" ", false);
+                      
+                 }
 
             }
 
@@ -465,21 +475,21 @@ namespace Characters
                 if (seeingNew)
                 {
 
-                    points++;
-
-
-
-                    scoreboard.AddEntry(scoreData);
+                    
 
                     if (what.tag == "PictureFrame" || what.tag == "OtherPoster")
                     {
                         what.GetComponent<OpenPage>().newLog = false;
                         what.GetComponent<OpenPage>().GoToURL();
+                        points++;
+                        scoreboard.AddEntry(scoreData);
                     }
                     else if (what.tag == "NPC")
                     {
 
                         what.GetComponent<NPCScript>().Interact();
+                        littleInfoCanv.playerLooking= false;
+                        thirdPerson = false;
                         //what.GetComponent<NPCScript>().met = true;
 
                     }
@@ -495,6 +505,7 @@ namespace Characters
                     else if (what.tag == "NPC")
                     {
                         what.GetComponent<NPCScript>().Interact();
+                        thirdPerson = false;
                     }
                 }
 
@@ -506,6 +517,11 @@ namespace Characters
 
                 // Debug.Log(logCheck);
 
+            }
+
+            public void PerspectiveChange(bool tp)
+            {
+                thirdPerson = tp;
             }
             
 
