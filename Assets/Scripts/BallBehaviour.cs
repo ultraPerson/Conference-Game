@@ -33,7 +33,7 @@ public class BallBehaviour : MonoBehaviour
     public void Kick(Vector3 dir)
     {
 
-        this.GetComponent<Rigidbody>().AddForce(dir * 20, ForceMode.Impulse);
+        this.GetComponent<Rigidbody>().AddForce(dir, ForceMode.Impulse);
         
     }
 }

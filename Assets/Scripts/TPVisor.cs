@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -40,7 +40,7 @@ namespace Characters
             private GameObject vText;
             //text game object for points
             private GameObject vScore;
-            private GameObject playerCanvas;
+            [SerializeField]private GameObject playerCanvas;
             private GameObject tBG;
             //image game object for PBG
             private GameObject pBG;
@@ -48,39 +48,61 @@ namespace Characters
             public string playerName;
 
             private int layerMask = 1 << 8;
+            public int LayerMask
+            {get {return layerMask;}}
+            
             //private float maxDist;
             public Ray lookAt
             {
                 get;
                 private set;
             }
+            [SerializeField]
+            private NPCInfo littleInfoCanv;
 
-            private Camera cam;
+            public Camera cam
+            {get; private set;}
             private CinemachineFreeLook camControl;
             private GameObject scoreHolder;
             private bool seeingNew = false;
-            private float screenW = Screen.width;
-            private float screenH = Screen.height;
+            private bool zoom = false;
+            public float zoomRate;
+            private float startingFOV;
+            public float currentFOV;
+
+            private Image retical;
+            private Sprite targetEmpty;
+            [SerializeField] private Sprite targetFull;
+            
+            private float screenW;
+            private float screenH;
             //private float totalWidthT;
             //private float totalHeightT;
             private Vector2 textPos;
             private Vector2 pointPos;
             private RaycastHit seen;
+            public RaycastHit Seen
+            {get {return seen;}}
             private GameObject what;
             private Text whatDesc;
 
             private GameObject[] allScores;
+            public GameObject camTarget;
+            private float zoomTarget = 0f;//have this change like the zoom amount, and have camTarget y positon set to this value in Update()
 
             //public GameObject chatUIPrefab;
             //private GameObject chatUIClone;
-            private ChatBehaviour chatBehaviour;
+            //private ChatBehaviour chatBehaviour;
             [SerializeField] private PauseScript pauseScript;
             //private string savePath = $"{Application.}/highscores.json";
             // private RectTransform cTextRTrans;
             // private RectTransform cInputRTrans;
             public bool chatOpen
             { get; private set; }
-            public bool isPaused = true;
+            public bool thirdPerson
+            {get; private set;}
+            
+            public bool isPaused = false;
 
             
             Scoreboard scoreboard;
@@ -89,6 +111,15 @@ namespace Characters
             // Start is called before the first frame update
             void Start()
             {
+                thirdPerson = true;
+                screenW = Screen.width;
+                screenH = Screen.height;
+                
+
+                if(string.IsNullOrEmpty(playerName))
+                {
+                    playerName = "New Player";
+                }
 
                 //GameObject.Find("NetworkManager").GetComponent<NetworkManagerHUD>().offsetX -= 300;
 
@@ -98,20 +129,29 @@ namespace Characters
                 //chatUIClone = Instantiate(chatUIPrefab);
 
                 cam = Camera.main;
-                camControl = transform.GetChild(1).gameObject.GetComponent<CinemachineFreeLook>();
+                retical = cam.gameObject.transform.GetChild(0).GetChild(0).GetComponent<Image>();
+                targetEmpty = retical.sprite;
+                camControl = GameObject.Find("TPCam").GetComponent<CinemachineFreeLook>();
+                startingFOV = cam.fieldOfView;
+                currentFOV = startingFOV;
                 if(camControl != null){
                     Debug.Log("camControl set");
                 }
-                playerCanvas = GameObject.Find("/Main Camera/VisorCanvas");
-                vText = GameObject.Find("/Main Camera/VisorCanvas/TextBG/VisorText");
-                vScore = GameObject.Find("/Main Camera/VisorCanvas/ScoreBG/VisorScore");
-                tBG = GameObject.Find("/Main Camera/VisorCanvas/TextBG");
-                pBG = GameObject.Find("/Main Camera/VisorCanvas/ScoreBG");
+                camControl.m_Follow = GameObject.Find("DollyCart1").transform;
+                camControl.m_LookAt = GameObject.Find("MenuStart").transform;
+                if(playerCanvas == null)
+                {
+                playerCanvas = GameObject.Find("Main Camera/VisorCanvas");
+                }
+                tBG = playerCanvas.transform.GetChild(1).gameObject;//GameObject.Find("/Main Camera/VisorCanvas/TextBG");
+                pBG = playerCanvas.transform.GetChild(2).gameObject;//GameObject.Find("/Main Camera/VisorCanvas/ScoreBG");
+                vText = tBG.transform.GetChild(0).gameObject;//GameObject.Find("/Main Camera/VisorCanvas/TextBG/VisorText");
+                vScore = pBG.transform.GetChild(1).gameObject;//GameObject.Find("/Main Camera/VisorCanvas/ScoreBG/VisorScore");
 
                 
                 //pauseScript = GetComponent<PauseScript>();
                 chatOpen = false;
-                chatBehaviour = GetComponent<ChatBehaviour>();
+                //chatBehaviour = GetComponent<ChatBehaviour>();
                // cTextRTrans = chatBehaviour.chatText.GetComponent<RectTransform>();
                // cInputRTrans = chatBehaviour.inputField.GetComponent < RectTransform > ();
                 scoreHolder = pBG.transform.GetChild(0).gameObject;
@@ -135,9 +175,28 @@ namespace Characters
                 vPoints = vScore.GetComponent<Text>();
                 //rectTransform = vScan.GetComponent<RectTransform>();
                 
-                
+                //Vscan and TBG coordinates 
+                textPos = new Vector2(0, 0);
+                //vpoints and PBG coordinates
+                pointPos = new Vector2(screenW, screenH);
 
+
+                tBGTrans.position = textPos;
                 
+                pBGTrans.position = pointPos;
+                pTextTrans.position = pBGTrans.position;
+                pTextTrans.sizeDelta = new Vector2(pBGTrans.sizeDelta.x/2, pBGTrans.sizeDelta.y / 8);
+                scoreHolder.transform.position = new Vector2(pointPos.x, pointPos.y - pBGTrans.sizeDelta.y);
+                pointPos = new Vector2(screenW, screenH);
+
+
+                tBGTrans.position = textPos;
+                pBGTrans.sizeDelta = new Vector2(screenW / 6, screenH / 2);
+                tBGTrans.sizeDelta = new Vector2(screenW, screenH / 3);
+                vTextTrans.sizeDelta = new Vector2(screenW - 20, (screenH / 3) - 10);
+                vTextTrans.position = new Vector2(10, 5);
+
+                Debug.Log(Screen.currentResolution);
                 //visor.renderMode = RenderMode.ScreenSpaceOverlay;
 
 
@@ -147,60 +206,60 @@ namespace Characters
             void Update()
 
             {
+
+                
+
                 isPaused = pauseScript.isPaused;
                 
-                if(Screen.height != screenH || Screen.width != screenW)
-                {
-
-                screenH = Screen.height;
-                screenW = Screen.width;
-
-                }
+                
+                
 
                 vPoints.text = playerName + " score: " + points.ToString();
 
+                if(scoreData.score < points)
+                {
                 scoreData.score = points;
-
+                }
                 lookAt = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
-                //Vscan and TBG coordinates 
-                textPos = new Vector2(screenW + (screenW * -1), screenH + (screenH * -1));
-                //vpoints and PBG coordinates
-                pointPos = new Vector2(screenW, screenH);
+                
 
 
-                tBGTrans.position = textPos;
-                // vTextTrans.position = tBGTrans.position;
-                pBGTrans.position = pointPos;
-                pTextTrans.position = pBGTrans.position;
-                pTextTrans.sizeDelta = new Vector2(pBGTrans.sizeDelta.x, pBGTrans.sizeDelta.y / 8);
-                scoreHolder.transform.position = new Vector2(pointPos.x, pointPos.y - pBGTrans.sizeDelta.y);
-                RectTransform[] heldScores = scoreHolder.GetComponentsInChildren<RectTransform>();
-                foreach(RectTransform dimensions in heldScores)
-                {
-                    
-                    if(dimensions.gameObject.tag == "TextBox")
-                    {
-                        dimensions.sizeDelta = new Vector2(pBGTrans.sizeDelta.x/2 - 5, pBGTrans.sizeDelta.y / 8);
-                    } else dimensions.sizeDelta = new Vector2(pBGTrans.sizeDelta.x - 10, pBGTrans.sizeDelta.y / 8);
-                }
-                pBGTrans.sizeDelta = new Vector2(screenW / 6, screenH / 2);
-                tBGTrans.sizeDelta = new Vector2(screenW, screenH / 3);
-                vTextTrans.sizeDelta = tBGTrans.sizeDelta;
-                vTextTrans.position = tBGTrans.position;
-
-
-                playerCanvas.transform.position = cam.ScreenToWorldPoint(textPos);
+                //playerCanvas.transform.position = cam.ScreenToWorldPoint(textPos);
                 //Debug.DrawRay(cam.transform.position, Vector3.forward * 100, Color.green);
+                
 
+            
+
+                
 
                 if(!isPaused)
                 {
-                    
-                    if (Physics.Raycast(lookAt, out seen, 5, layerMask))
+
+                    if(Input.GetKeyDown(KeyCode.Mouse1))
                     {
+                        zoom = true;
+                        Debug.Log("Zoomed in");
+                    }
+                    if(Input.GetKeyUp(KeyCode.Mouse1))
+                    {
+                        zoom = false;
+                        Debug.Log("Zoomed out");
+                    }
+
+                
+
+                    
+                    
+                    if(!zoom)
+                    {
+
+                        if(thirdPerson)
+                        {
+                        if (Physics.Raycast(lookAt, out seen, 5, layerMask))
+                        {
                         
-                        
+                            
                             what = seen.transform.gameObject;
                         
 
@@ -212,16 +271,55 @@ namespace Characters
                         }
 
 
-
+                        WhatAmISeeing(seen);
                          
-                    }
-                    else
-                    {
-                        seeingNew = false;
-                        what = whatDefault;
-                    }
+                        }
+                        else
+                        {
+                            seeingNew = false;
+                            what = whatDefault;
+                            littleInfoCanv.playerLooking = false;
+                     
+                        }
+                        }
 
-                    WhatAmISeeing(what);
+                        
+
+                        if (Input.GetKeyDown(KeyCode.Tab))
+                        {
+                            chatOpen = !chatOpen;
+
+                            pauseScript.OpenChatUI(chatOpen);
+                            camControl.enabled = !chatOpen;
+
+                        if(chatOpen){
+                            Cursor.lockState = CursorLockMode.None;
+                            Cursor.lockState = CursorLockMode.Confined;
+                            Cursor.visible = true;
+                        } 
+
+                        
+
+                    
+                    
+                    
+                    
+                }//if press Tab while unpaused and unzoomed
+                    }//if not zoomed or paused
+                }//if not paused
+                else{//if paused
+
+                if(Input.GetKeyDown(KeyCode.Tab))
+                {
+                    if(chatOpen)
+                    {
+                        chatOpen = false;
+                        pauseScript.OpenChatUI(chatOpen);
+                        camControl.enabled = !chatOpen;
+                        Cursor.lockState = CursorLockMode.Locked;
+
+                    }
+                }
                 }
 
                 
@@ -230,24 +328,43 @@ namespace Characters
                     Cursor.lockState = CursorLockMode.Confined;
                 } else Cursor.lockState = CursorLockMode.Locked;*/
 
-                if (Input.GetKeyDown(KeyCode.Quote))
+                if(Input.GetKeyDown(KeyCode.Return))
                 {
-                    chatOpen = !chatOpen;
-
-                    chatBehaviour.OpenChatUI(chatOpen);
-                    camControl.enabled = !chatOpen;
-
-                    if(chatOpen){
-                        Cursor.lockState = CursorLockMode.None;
-                        Cursor.lockState = CursorLockMode.Confined;
-                        Cursor.visible = true;
-                    } else Cursor.lockState = CursorLockMode.Locked;
-
-                    
-                    
-                    
-                    
+                    if(chatOpen)
+                    {
+                        GetComponent<SendMessage>().OutsideSendMessageCall();
+                    }
                 }
+            
+
+                cam.fieldOfView = currentFOV;
+
+            }
+
+            void FixedUpdate()
+            {
+
+                
+
+                if(zoom)
+                {
+                    if(tBG.activeInHierarchy)
+                    {
+                        tBG.SetActive(false);
+                    }
+                    //zoomTarget -= zoomRate/40.37f;
+
+                    currentFOV -= zoomRate;
+                } else
+                {
+                    //tBG.SetActive(true);
+                    //zoomTarget += zoomRate/10;
+                    currentFOV += zoomRate;
+                }
+                currentFOV = Mathf.Clamp(currentFOV, 20, startingFOV);
+                
+                //zoomTarget = Mathf.Clamp(zoomTarget, -0.3f, .3f);
+                //camTarget.transform.localPosition = new Vector3(zoomTarget, .414f, 0f);
 
             }
 
@@ -271,50 +388,43 @@ namespace Characters
 
             }
 
-            void WhatAmISeeing(GameObject seen)
+            void WhatAmISeeing(RaycastHit seen)
             {
 
                 
-                string whatType = seen.tag;
-/*
-                if(whatType == "OverFrame")
-                {
-                    whatType = seen.transform.parent.tag;
-                } else whatType = seen.tag;*/
+                string whatType = seen.transform.gameObject.tag;
+
 
 
                 Image lastBG = tBG.GetComponent<Image>();
 
-                if(whatType == "Untagged")
+                if(whatType == "Untagged" || whatType == null)
                 {
 
                     tBG.SetActive(false);
-                    /*float toAlpha = 0f;
-                    for(float i = 1f; i > toAlpha; i-= 0.1f)
-                    {
-                        lastBG.color = new Color(lastBG.color.r, lastBG.color.b, lastBG.color.g, i);
-                    }*/
+                    retical.sprite = targetEmpty;
+                    
+                    
 
                 } else
                     {
-                        tBG.SetActive(true);
-                        float toAlpha = 1f;
-                        for(float i = 0.5f; i < toAlpha; i+= 0.1f)
-                        {
-                            lastBG.color = new Color(lastBG.color.r, lastBG.color.b, lastBG.color.g, i);
-                        }
-                    }
+                        
+                        retical.sprite = targetFull;
+                      
+                    
 
                 
 
-              //  if(whatType != "Untagged" || whatType != null)
-               // {
-                if (whatType == "NPC")
+              
+                 if (whatType == "NPC")
                 {
                     //NPCScript whatScript;
                     //Debug.Log("Yup, that's an NPC");
-                    string npcName = seen.GetComponentInParent<NPCScript>().nPCName;
-                    bool met = seen.GetComponentInParent<NPCScript>().met;
+                    string npcName = seen.transform.GetComponentInParent<NPCScript>().nPCName;
+                    bool met = seen.transform.GetComponentInParent<NPCScript>().met;
+                    //seen.GetComponent<NPCInfo>().playerLooking = true;
+                    littleInfoCanv.TextPlacingFunction(seen.transform.gameObject, seen.point);
+                    littleInfoCanv.playerLooking = true;
 
                     if (!met)
                     {
@@ -328,23 +438,32 @@ namespace Characters
                         VTextChange(npcName, false);
                     }
                 }
-                else if (whatType == "PictureFrame")
+                else if (whatType == "PictureFrame" || whatType == "OtherPoster")
                 {
+                    tBG.SetActive(true);
 
 
                     bool logCheck = what.GetComponent<OpenPage>().newLog;
-                    string description = seen.GetComponent<Text>().text;
+                    string description = seen.transform.GetComponent<Text>().text;
                     seeingNew = logCheck;
                     VTextChange(description, logCheck);
 
                 } else if(whatType == "MiscObj")
                 {
+                    tBG.SetActive(true);
                     if(seen.transform.name == "Ball")
                     {
                         VTextChange("Kick", false);
                     }
                 }
-                 else VTextChange(" ", false);
+                 else
+                 {
+                     
+                      VTextChange(" ", false);
+                      
+                 }
+
+            }
 
             }
 
@@ -356,21 +475,21 @@ namespace Characters
                 if (seeingNew)
                 {
 
-                    points++;
+                    
 
-
-
-                    scoreboard.AddEntry(scoreData);
-
-                    if (what.tag == "PictureFrame")
+                    if (what.tag == "PictureFrame" || what.tag == "OtherPoster")
                     {
                         what.GetComponent<OpenPage>().newLog = false;
                         what.GetComponent<OpenPage>().GoToURL();
+                        points++;
+                        scoreboard.AddEntry(scoreData);
                     }
                     else if (what.tag == "NPC")
                     {
 
                         what.GetComponent<NPCScript>().Interact();
+                        littleInfoCanv.playerLooking= false;
+                        thirdPerson = false;
                         //what.GetComponent<NPCScript>().met = true;
 
                     }
@@ -378,7 +497,7 @@ namespace Characters
                 }
                 else if (!seeingNew)
                 {
-                    if (what.tag == "PictureFrame")
+                    if (what.tag == "PictureFrame" || what.tag == "OtherPoster")
                     {
                         what.GetComponent<OpenPage>().newLog = false;
                         what.GetComponent<OpenPage>().GoToURL();
@@ -386,17 +505,23 @@ namespace Characters
                     else if (what.tag == "NPC")
                     {
                         what.GetComponent<NPCScript>().Interact();
+                        thirdPerson = false;
                     }
                 }
 
                 if(what.transform.name == "Ball")
                 {
                     Debug.Log(what.transform.name);
-                    what.GetComponent<BallBehaviour>().Kick(Vector3.forward);
+                    what.GetComponent<BallBehaviour>().Kick(cam.transform.forward);
                 }
 
                 // Debug.Log(logCheck);
 
+            }
+
+            public void PerspectiveChange(bool tp)
+            {
+                thirdPerson = tp;
             }
             
 

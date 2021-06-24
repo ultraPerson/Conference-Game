@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-
+using System;
 using UnityEngine.UI;
 using UnityEngine;
+using TMPro;
 using Scoreboards;
 using Menus;
+using Michsky.UI.ModernUIPack;
 
 
 namespace Characters
@@ -18,15 +20,16 @@ namespace Characters
             public bool hasQuiz;
             public string nPCName;
             public GameObject dialogueBox;
+            [SerializeField] private GameObject shadow;
             public Text dialogueBoxText;
-            public Text quizText;
+            public TMP_Text quizText;
             public Text interfaceHelp;
             private Camera mainCam;//private
             public Camera thisCam;
             public bool met = false;
             public Canvas dialogueCanvas;
             private Canvas mainCanvas;//private
-            public GameObject quizCanvas;
+            public NotificationManager quizCanvas;
             private GameObject pauseCtrl;//private
             private GameObject tPCam;//private
             //public Sprite[] faces;
@@ -39,20 +42,29 @@ namespace Characters
             //public GameObject vision;
 
             //private bool seesYou = false;
-            private int qLevel = 0;
+            public int qLevel;
+            
+            private int numberOfQ;
             private bool quizing = false;
             private bool conversing = false;
             private bool answer;
-            public bool[] correctAnswers = { true, false };
+            [SerializeField] private bool[] correctAnswers = { true, false };
+            [SerializeField] private string[] extraResponse = {"The answer you gave was incorrect!", "My father was a winged pringle."};
             private bool feedbackMode = false;
-            public string[] quizQuestions = { "This statement is false?", "What is the difference between a duck?" };
-            private int dialoguePos = 0;
+            [SerializeField] private string[] QuizQuestions = {"This statement is false?", "What is the difference between a duck?"};
+            public string[] quizQuestions 
+            {
+                get{return QuizQuestions;}
+                private set{quizQuestions = QuizQuestions;}
+            }
+            
+            public int dialoguePos = 0;
             //private Animation anim;
             private TPVisor vScript;
    
            
 
-            public string[] dialogue = {
+            [SerializeField]private string[] dialogue = {
         "Hello! My name is Enpici Defaultson.",
         "I don't have much to say, really.",
         "Let's see how much dialogue I can fit in this box here. Bla bla bla bla bla. Capitalism makes political enemies of us all. Ablolish the state.",
@@ -66,7 +78,16 @@ namespace Characters
                 mainCanvas = Camera.main.transform.GetChild(0).GetComponent<Canvas>();
                 
                 tPCam = mainCam.gameObject;
+                numberOfQ = quizQuestions.Length;
                 dialogueCanvas.enabled = false;
+
+                if(extraResponse.Length < numberOfQ)
+                {
+                    Array.Resize(ref extraResponse, numberOfQ);
+                }
+                
+                pauseCtrl = GameObject.Find("Player");
+                vScript = pauseCtrl.GetComponent<TPVisor>();
 
 
             }
@@ -81,7 +102,7 @@ namespace Characters
 
                 thisCam.enabled = false;
                 //Debug.Log(dialogue.Length);
-                quizCanvas.SetActive(false);
+                //quizCanvas.SetActive(false);
                 //anim = face.GetComponent<Animation>();
                 met = false;
                 //anim.playAutomatically = false;
@@ -112,14 +133,18 @@ namespace Characters
                 if (hasQuiz)
                 {
                     //show quiz option
-                    quizCanvas.SetActive(true);
+                    
+                    quizCanvas.OpenNotification();
 
                 }
-
-                if (!met)
+                if(!met)
                 {
-                    Converse();
+
+                Converse();
                 }
+
+                pauseCtrl.transform.GetChild(9).GetComponent<NPCInfo>().CardClear();
+
 
 
 
@@ -127,27 +152,20 @@ namespace Characters
 
             public void Converse()
             {
-                // Speak(dialoguePos, met);
-                // anim.Play("TalkingFace");
-
-               /* if (!met)
-                {
-                    
-                    dialogueBoxText.text = dialogue[0];
-                    met = true;
-                }
-                else //try
-                    {*/
-                    met = true;
+                    if(dialoguePos >= dialogue.Length - 1)
+                    {
+                        met = true;
+                        vScript.points++;
+                    }
+                    try
+                    {
                         dialogueBoxText.text = dialogue[ChooseDialogue(dialoguePos)];
-                    //}
-
-                //face.GetComponent<SpriteRenderer>().sprite = faces[new System.Random().Next(faces.Length - 1)];
-                  
-
-
-
-
+                    }
+                    catch(IndexOutOfRangeException e)
+                    {
+                        dialogueBoxText.text = dialogue[dialogue.Length - 1];
+                    }
+                        interfaceHelp.text = "Click to continue...";
 
             }
            
@@ -160,12 +178,11 @@ namespace Characters
 
                 if (qLevel < quizQuestions.Length)
                 {
-                    quizText.text = quizQuestions[ChooseQuestion(qLevel)];
+                    dialogueBoxText.text = quizQuestions[ChooseQuestion(qLevel)];
                     interfaceHelp.text = "'T' for true, 'F' for false";
+                    Debug.Log($"Qlevel: {qLevel}");
 
-                    quizCanvas.transform.position = dialogueBox.transform.position;
-                    quizCanvas.GetComponent<RectTransform>().sizeDelta = dialogueBox.GetComponent<RectTransform>().sizeDelta;
-                    dialogueBox.SetActive(false);
+                    
                 }
                 else
 
@@ -194,52 +211,70 @@ namespace Characters
 
             int ChooseDialogue(int pos)
             {
+                Debug.Log("dialoguePos set to " + pos);
                 if (pos >= dialogue.Length)
                 {
-                    dialoguePos = dialogue.Length -1;
-                    return dialoguePos;
+                    dialoguePos = dialogue.Length;
+                    return dialoguePos - 1;
+                } else if(pos == 0)
+                {
+                    dialoguePos ++;
+                    return 0;
+                    
                 }
                 else 
                 {
                     
                     dialoguePos ++;
-                    Debug.Log("dialoguePos set to " + pos);
+                    
                     return pos;
 
 
                 }
+                
             }
 
             void EndQuiz()
             {
                 hasQuiz = false;
                 quizing = false;
-                quizCanvas.SetActive(false);
-                dialogueBox.SetActive(true);
-                Interact();
+                quizCanvas.CloseNotification();
+                //dialogueBox.SetActive(true);
+                Converse();
             }
 
             void AnswerCheck(bool ans)
             {
-                TPVisor vScript = pauseCtrl.GetComponent<TPVisor>();
+                 
                 feedbackMode = true;
 
 
                 if (ans == correctAnswers[qLevel])
                 {
+
+                    //Debug.Log(qLevel);
+                    
                     vScript.points++;
-                    quizText.text = "Excellent!";
+                    dialogueBoxText.text = $"Correct ansewer: {ans.ToString()}. Excellent!\n";
+                    
                     interfaceHelp.text = "Enter/Return";
-                    //feedbackMode = true;
+                    
                     qLevel++;
                 }
                 else
                 {
+                    bool correct = !ans;
                     //feedbackMode = true;
-                    quizText.text = "Aww, too bad...";
+                    dialogueBoxText.text = $"Correct ansewer: {correct.ToString()}. Aww, too bad...\n";
                     interfaceHelp.text = "Enter/Return";
                     qLevel++;
                 }
+
+                if(!string.IsNullOrEmpty(extraResponse[qLevel -1]))
+                    {
+                        dialogueBoxText.text += extraResponse[qLevel - 1];
+                        Debug.Log(extraResponse[qLevel - 1]);
+                    }
             }
 
             public void LeaveConvo()
@@ -255,7 +290,8 @@ namespace Characters
                 //Cursor.lockState = CursorLockMode.Locked;
                 // Debug.Log(Cursor.lockState);
                 //quizing = false;
-                quizCanvas.SetActive(false);
+                quizCanvas.CloseNotification();
+                vScript.PerspectiveChange(true);
                 //face.GetComponent<SpriteRenderer>().sprite = faces[0];
             }
 
@@ -268,6 +304,7 @@ namespace Characters
                     if(GameObject.Find("Player"))
                     {
                         pauseCtrl = GameObject.Find("Player");
+                        vScript = pauseCtrl.GetComponent<TPVisor>();
                     } else pauseCtrl = GameObject.Find("Player(Clone)");
                 }
                 //Mathf.Clamp(dialoguePos, 0, dialogue.Length);
@@ -292,6 +329,7 @@ namespace Characters
                 {
                     //fit dialogue to screen
                     dialogueBox.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width * 0.8f, Screen.height / 5);
+                    shadow.GetComponent<RectTransform>().sizeDelta = new Vector2(dialogueBox.GetComponent<RectTransform>().sizeDelta.x + 125f, dialogueBox.GetComponent<RectTransform>().sizeDelta.y + 100f);
                     dialogueBoxText.GetComponent<RectTransform>().sizeDelta = dialogueBox.GetComponent<RectTransform>().sizeDelta;
                    // nextText.GetComponent<RectTransform>().sizeDelta = new Vector2(dialogueBox.GetComponent<RectTransform>().sizeDelta.x / 5, dialogueBox.GetComponent<RectTransform>().sizeDelta.y / 6);
                    // nextText.GetComponent<RectTransform>().position = new Vector2((dialogueBox.GetComponent<RectTransform>().position.x / 2) * -1, dialogueBox.GetComponent<RectTransform>().position.y);
@@ -311,7 +349,10 @@ namespace Characters
 
                     if (Input.GetKeyDown(KeyCode.Mouse0))
                     {
-                        Converse();
+                        if(!quizing)
+                        {
+                            Converse();
+                        }
                         Debug.Log("Click");
                     }
 
@@ -324,7 +365,7 @@ namespace Characters
                             if (Input.GetKeyDown(KeyCode.Return))
                             {
                                 QuizTime();
-                                Debug.Log("ran QuizTime");
+                                //Debug.Log("ran QuizTime");
                             }
                         }
                         else
