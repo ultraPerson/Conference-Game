@@ -281,6 +281,7 @@ namespace Characters
             {
                 conversing = false;
                 pauseCtrl.GetComponent<PauseScript>().ConvoStatus(conversing);
+                pauseCtrl.GetComponent<TPVisor>().PerspectiveChange(true);
                 mainCam.enabled = true;
                 
                 transform.GetChild(0).GetComponent<AudioListener>().enabled = false;
