@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using Cinemachine;
 using Scoreboards;
 using Menus;
@@ -22,7 +23,7 @@ namespace Characters
             //Canvas component
             Canvas visor;
             //text component beneath TBG(text background)
-            Text vScan;
+            TMP_Text vScan;
             //text component beneath PBG(points background)
             Text vPoints;
             //transform for TBG
@@ -42,6 +43,8 @@ namespace Characters
             private GameObject vText;
             //text game object for points
             private GameObject vScore;
+            [SerializeField]
+            private ParticleSystem scoreBurst;
             [SerializeField]private GameObject playerCanvas;
             private GameObject tBG;
             [SerializeField] 
@@ -177,7 +180,7 @@ namespace Characters
 
                 //cam = Camera.main;
                 //visor = GetComponent < Canvas > ();
-                vScan = vText.GetComponent<Text>();
+                vScan = vText.GetComponent<TMP_Text>();
                 vPoints = vScore.GetComponent<Text>();
                 //rectTransform = vScan.GetComponent<RectTransform>();
                 
@@ -415,18 +418,11 @@ namespace Characters
 
 
                 string description = what;
-                if (logCheck == true)
-                {
+                
 
-                    vScan.text = "New Information: " + description;
+                vScan.text = description;
 
-                }
-                else
-                {
-
-                    vScan.text = description;
-
-                }
+                
 
             }
 
@@ -522,7 +518,7 @@ namespace Characters
                 {
 
                     
-
+                    scoreBurst.Play(true);
                     if (what.tag == "PictureFrame" || what.tag == "OtherPoster")
                     {
                         what.GetComponent<OpenPage>().newLog = false;

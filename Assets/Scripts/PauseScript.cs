@@ -122,20 +122,20 @@ public class PauseScript : MonoBehaviour
         SensitivityChange(mouseS.value);
 
         mainVol.minValue = 0.0001f;
-        mainVol.maxValue = 1;
-        mainVol.value = 0.75f;
+        mainVol.maxValue = 2f;
+        mainVol.value = 0.90f;
         mainVol.onValueChanged.AddListener(delegate {MainVolumeChange(mainVol.value);});
         MainVolumeChange(mainVol.value);
 
         musicVol.minValue = 0.0001f;
-        musicVol.maxValue = 1f;
-        musicVol.value = 0.75f;
+        musicVol.maxValue = 2f;
+        musicVol.value = 0.90f;
         musicVol.onValueChanged.AddListener(delegate {MusicVolumeChange(musicVol.value);});
         MusicVolumeChange(musicVol.value);
 
         ambiVol.minValue = 0.0001f;
-        ambiVol.maxValue = 1f;
-        ambiVol.value = .75f;
+        ambiVol.maxValue = 2f;
+        ambiVol.value = .90f;
         ambiVol.onValueChanged.AddListener(delegate {AmbientVolumeChange(ambiVol.value);});
         AmbientVolumeChange(ambiVol.value);
 
@@ -304,12 +304,14 @@ public class PauseScript : MonoBehaviour
     public void MainVolumeChange(float val)
     {
 
-        float volume = Mathf.Log(val) * 20;
+        float volume = Mathf.Log10(val) * 20;
         
         
             
             //mainMix.GetFloat("masterVol", out volume);
             mainMix.SetFloat("masterVol", volume);
+            
+            Debug.Log($"main volume: {volume}");
             //Debug.Log($"Master vol changed to {volume}");
             
         
@@ -318,12 +320,12 @@ public class PauseScript : MonoBehaviour
     public void MusicVolumeChange(float val)
     {
 
-        float volume = Mathf.Log(val) * 20;
+        float volume = Mathf.Log10(val) * 20;
         
         
             
             //mainMix.GetFloat("musicVol", out volume);
-            mainMix.SetFloat("musicVol", val - 50);
+            mainMix.SetFloat("musicVol", volume);
             //Debug.Log($"Music vol changed to {volume}");
             
         
@@ -332,12 +334,12 @@ public class PauseScript : MonoBehaviour
     public void AmbientVolumeChange(float val)
     {
 
-        float volume = Mathf.Log(val) * 20;
+        float volume = Mathf.Log10(val) * 20;
         
         
             
             //mainMix.GetFloat("ambiVol", out volume);
-            mainMix.SetFloat("ambiVol", val - 50);
+            mainMix.SetFloat("ambiVol", volume);
             //Debug.Log($"Ambient vol changed to {volume}");
             
         
