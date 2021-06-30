@@ -16,7 +16,7 @@ namespace Menus{
 public class PauseScript : MonoBehaviour
 {
     [SerializeField]private GameObject pauseUI;
-    private GameObject visorCanvas;
+    [SerializeField]private GameObject visorCanvas;
     [SerializeField]private GameObject settingsObj;
     [SerializeField]private GameObject helpObj;
     [SerializeField]private GameObject menuPannels;
