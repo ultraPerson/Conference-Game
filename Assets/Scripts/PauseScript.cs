@@ -16,7 +16,7 @@ namespace Menus{
 public class PauseScript : MonoBehaviour
 {
     [SerializeField]private GameObject pauseUI;
-    private GameObject visorCanvas;
+    [SerializeField]private GameObject visorCanvas;
     [SerializeField]private GameObject settingsObj;
     [SerializeField]private GameObject helpObj;
     [SerializeField]private GameObject menuPannels;
@@ -121,21 +121,21 @@ public class PauseScript : MonoBehaviour
         mouseS.value = 0;
         SensitivityChange(mouseS.value);
 
-        mainVol.minValue = 0f;
-        mainVol.maxValue = 70f;
-        mainVol.value = 50f;
+        mainVol.minValue = 0.0001f;
+        mainVol.maxValue = 2f;
+        mainVol.value = 0.90f;
         mainVol.onValueChanged.AddListener(delegate {MainVolumeChange(mainVol.value);});
         MainVolumeChange(mainVol.value);
 
-        musicVol.minValue = 15f;
-        musicVol.maxValue = 60f;
-        musicVol.value = 50f;
+        musicVol.minValue = 0.0001f;
+        musicVol.maxValue = 2f;
+        musicVol.value = 0.90f;
         musicVol.onValueChanged.AddListener(delegate {MusicVolumeChange(musicVol.value);});
         MusicVolumeChange(musicVol.value);
 
-        ambiVol.minValue = 15f;
-        ambiVol.maxValue = 60f;
-        ambiVol.value = 50f;
+        ambiVol.minValue = 0.0001f;
+        ambiVol.maxValue = 2f;
+        ambiVol.value = .90f;
         ambiVol.onValueChanged.AddListener(delegate {AmbientVolumeChange(ambiVol.value);});
         AmbientVolumeChange(ambiVol.value);
 
@@ -304,13 +304,15 @@ public class PauseScript : MonoBehaviour
     public void MainVolumeChange(float val)
     {
 
-        float volume;
+        float volume = Mathf.Log10(val) * 20;
         
         
             
-            mainMix.GetFloat("masterVol", out volume);
-            mainMix.SetFloat("masterVol", val -50);
-            Debug.Log($"Master vol changed to {volume}");
+            //mainMix.GetFloat("masterVol", out volume);
+            mainMix.SetFloat("masterVol", volume);
+            
+            Debug.Log($"main volume: {volume}");
+            //Debug.Log($"Master vol changed to {volume}");
             
         
     }
@@ -318,13 +320,13 @@ public class PauseScript : MonoBehaviour
     public void MusicVolumeChange(float val)
     {
 
-        float volume;
+        float volume = Mathf.Log10(val) * 20;
         
         
             
-            mainMix.GetFloat("musicVol", out volume);
-            mainMix.SetFloat("musicVol", val - 50);
-            Debug.Log($"Music vol changed to {volume}");
+            //mainMix.GetFloat("musicVol", out volume);
+            mainMix.SetFloat("musicVol", volume);
+            //Debug.Log($"Music vol changed to {volume}");
             
         
     }
@@ -332,13 +334,13 @@ public class PauseScript : MonoBehaviour
     public void AmbientVolumeChange(float val)
     {
 
-        float volume;
+        float volume = Mathf.Log10(val) * 20;
         
         
             
-            mainMix.GetFloat("ambiVol", out volume);
-            mainMix.SetFloat("ambiVol", val - 50);
-            Debug.Log($"Ambient vol changed to {volume}");
+            //mainMix.GetFloat("ambiVol", out volume);
+            mainMix.SetFloat("ambiVol", volume);
+            //Debug.Log($"Ambient vol changed to {volume}");
             
         
     }

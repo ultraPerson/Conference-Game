@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -172,7 +173,10 @@ public class SendMessage : MonoBehaviour {
 
     public void OutsideSendMessageCall()
     {
-        TaskOnClick();
+        if(String.IsNullOrWhiteSpace(TextInput.text))
+        {
+            return;
+        } else TaskOnClick();
     }
     void TaskOnClick()
     {

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using Cinemachine;
 using Scoreboards;
 using Menus;
@@ -22,7 +23,7 @@ namespace Characters
             //Canvas component
             Canvas visor;
             //text component beneath TBG(text background)
-            Text vScan;
+            TMP_Text vScan;
             //text component beneath PBG(points background)
             Text vPoints;
             //transform for TBG
@@ -36,12 +37,20 @@ namespace Characters
             //transform for vPoints
             RectTransform pTextTrans;
 
+            
+
             public GameObject whatDefault;
             private GameObject vText;
             //text game object for points
             private GameObject vScore;
+            [SerializeField]
+            private ParticleSystem scoreBurst;
             [SerializeField]private GameObject playerCanvas;
             private GameObject tBG;
+            [SerializeField] 
+            private GameObject textScrollArea;
+            private Scrollbar textScrollBar;
+            public float vTextScrollPos;
             //image game object for PBG
             private GameObject pBG;
             public int points = 0;
@@ -145,7 +154,7 @@ namespace Characters
                 }
                 tBG = playerCanvas.transform.GetChild(1).gameObject;//GameObject.Find("/Main Camera/VisorCanvas/TextBG");
                 pBG = playerCanvas.transform.GetChild(2).gameObject;//GameObject.Find("/Main Camera/VisorCanvas/ScoreBG");
-                vText = tBG.transform.GetChild(0).gameObject;//GameObject.Find("/Main Camera/VisorCanvas/TextBG/VisorText");
+                vText = tBG.transform.GetChild(0).GetChild(0).GetChild(0).gameObject;
                 vScore = pBG.transform.GetChild(1).gameObject;//GameObject.Find("/Main Camera/VisorCanvas/ScoreBG/VisorScore");
 
                 
@@ -166,12 +175,12 @@ namespace Characters
                 scoreboard.AddEntry(scoreData);
                 tBGTrans = tBG.GetComponent<RectTransform>();
                 pBGTrans = pBG.GetComponent<RectTransform>();
-                vTextTrans = vText.GetComponent<RectTransform>();
+                vTextTrans = textScrollArea.GetComponent<RectTransform>();
                 pTextTrans = vScore.GetComponent<RectTransform>();
 
                 //cam = Camera.main;
                 //visor = GetComponent < Canvas > ();
-                vScan = vText.GetComponent<Text>();
+                vScan = vText.GetComponent<TMP_Text>();
                 vPoints = vScore.GetComponent<Text>();
                 //rectTransform = vScan.GetComponent<RectTransform>();
                 
@@ -193,11 +202,18 @@ namespace Characters
                 tBGTrans.position = textPos;
                 pBGTrans.sizeDelta = new Vector2(screenW / 6, screenH / 2);
                 tBGTrans.sizeDelta = new Vector2(screenW, screenH / 3);
-                vTextTrans.sizeDelta = new Vector2(screenW - 20, (screenH / 3) - 10);
-                vTextTrans.position = new Vector2(10, 5);
+                vTextTrans.sizeDelta = new Vector2(screenW, 124.693f);
+                vTextTrans.position = new Vector2(screenW/2, 62.5f);
+                vText.GetComponent<RectTransform>().sizeDelta = new Vector2(vTextTrans.sizeDelta.x -20, 300);
+                vText.transform.position = new Vector2(0, 62.5f);
+                
 
-                Debug.Log(Screen.currentResolution);
-                //visor.renderMode = RenderMode.ScreenSpaceOverlay;
+                textScrollBar = textScrollArea.transform.GetChild(2).GetComponent<Scrollbar>();
+
+                
+
+               
+                
 
 
             }
@@ -254,9 +270,8 @@ namespace Characters
                     if(!zoom)
                     {
 
-                        if(thirdPerson)
-                        {
-                        if (Physics.Raycast(lookAt, out seen, 5, layerMask))
+                        
+                        if (Physics.Raycast(lookAt, out seen, 5, layerMask) && thirdPerson)
                         {
                         
                             
@@ -279,9 +294,16 @@ namespace Characters
                             seeingNew = false;
                             what = whatDefault;
                             littleInfoCanv.playerLooking = false;
+                            tBG.SetActive(false);
+                            if(littleInfoCanv.transform.GetChild(0).gameObject.activeInHierarchy)
+                            {
+
+                                littleInfoCanv.CardClear();
+
+                            }
                      
                         }
-                        }
+                        
 
                         
 
@@ -344,8 +366,13 @@ namespace Characters
             void FixedUpdate()
             {
 
-                
+                // if(textScrollBar == null)
+                // {
+                //     textScrollBar = textScrollArea.transform.GetChild(2).GetComponent<Scrollbar>();
+                // }
 
+                vTextScrollPos = Mathf.Clamp(vTextScrollPos, 0f, 1f);
+                textScrollBar.value = vTextScrollPos;
                 if(zoom)
                 {
                     if(tBG.activeInHierarchy)
@@ -362,29 +389,40 @@ namespace Characters
                     currentFOV += zoomRate;
                 }
                 currentFOV = Mathf.Clamp(currentFOV, 20, startingFOV);
+
+                //Debug.Log(Input.mouseScrollDelta);
+
+                if(Input.mouseScrollDelta.y > 0 && textScrollBar.value < 1)
+                {
+
+                    
+
+                    vTextScrollPos += 0.1f;
+
+                } else if(Input.mouseScrollDelta.y < 0 && textScrollBar.value > 0)
+                {
+
+                    vTextScrollPos -= 0.1f;
+
+                }
                 
-                //zoomTarget = Mathf.Clamp(zoomTarget, -0.3f, .3f);
-                //camTarget.transform.localPosition = new Vector3(zoomTarget, .414f, 0f);
+                
+            
 
             }
+
+            
 
             void VTextChange(string what, bool logCheck)
             {
 
 
                 string description = what;
-                if (logCheck == true)
-                {
+                
 
-                    vScan.text = "New Information: " + description;
+                vScan.text = description;
 
-                }
-                else
-                {
-
-                    vScan.text = description;
-
-                }
+                
 
             }
 
@@ -395,14 +433,18 @@ namespace Characters
                 string whatType = seen.transform.gameObject.tag;
 
 
+                
+
+
 
                 Image lastBG = tBG.GetComponent<Image>();
 
                 if(whatType == "Untagged" || whatType == null)
                 {
-
+                    vTextScrollPos = 1;
                     tBG.SetActive(false);
                     retical.sprite = targetEmpty;
+                    
                     
                     
 
@@ -476,20 +518,22 @@ namespace Characters
                 {
 
                     
-
+                    scoreBurst.Play(true);
                     if (what.tag == "PictureFrame" || what.tag == "OtherPoster")
                     {
                         what.GetComponent<OpenPage>().newLog = false;
                         what.GetComponent<OpenPage>().GoToURL();
                         points++;
                         scoreboard.AddEntry(scoreData);
+                        
                     }
                     else if (what.tag == "NPC")
                     {
 
                         what.GetComponent<NPCScript>().Interact();
                         littleInfoCanv.playerLooking= false;
-                        thirdPerson = false;
+                        PerspectiveChange(false);
+                        littleInfoCanv.CardClear();
                         //what.GetComponent<NPCScript>().met = true;
 
                     }
@@ -505,7 +549,8 @@ namespace Characters
                     else if (what.tag == "NPC")
                     {
                         what.GetComponent<NPCScript>().Interact();
-                        thirdPerson = false;
+                        PerspectiveChange(false);
+                        littleInfoCanv.CardClear();
                     }
                 }
 
@@ -522,6 +567,7 @@ namespace Characters
             public void PerspectiveChange(bool tp)
             {
                 thirdPerson = tp;
+                Debug.Log($"thirdPerson set to {tp}");
             }
             
 

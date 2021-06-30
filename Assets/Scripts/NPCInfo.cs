@@ -99,7 +99,7 @@ public class NPCInfo : MonoBehaviour
                 textBox.transform.position = eyeContact;
                 transform.LookAt(player.transform.GetChild(8).GetChild(1));
             }
-        } else CardClear();
+        } 
     }
 
 
