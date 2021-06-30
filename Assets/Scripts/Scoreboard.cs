@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Characters;
 
 
@@ -20,15 +21,16 @@ namespace Scoreboards
         [SerializeField] public ScoreboardEntryData testData = new ScoreboardEntryData();
 
         private GameObject[] allScores;
-        private string savePath;
+        private string savePath = "https://solar-power-tech.com/game/GameTest/PHPTest/PHP/";  
 
         private void Start()
         {
-            savePath = "/highscores.json";
-
-            SaveScore savedScores = GetSavedScores();
+            //SaveScore savedScores = GetSavedScores();
+            //UpdateScores(savedScores);
+            //UpdateUI(savedScores);
+            SaveScore savedScores = new SaveScore();
+            savedScores.scores = new List<ScoreboardEntryData>() { testData };
             UpdateScores(savedScores);
-            UpdateUI(savedScores);
         }
 
         public void AddEntry(ScoreboardEntryData scoreboardEntryData)
@@ -133,6 +135,7 @@ namespace Scoreboards
 
         private IEnumerator UpdateScores(SaveScore saveScore)
         {
+            Debug.Log("Trying to write to database");
             //using (StreamWriter stream = new StreamWriter(savePath))
             //{
             //    string json = JsonUtility.ToJson(saveScore, true);
@@ -149,7 +152,7 @@ namespace Scoreboards
                 form.AddField("username", data.name);
                 form.AddField("score", data.score);
                 // Tries to post a form using PHP
-                using (UnityWebRequest www = UnityWebRequest.Post(phpDirectory + "register.php", form))
+                using (UnityWebRequest www = UnityWebRequest.Post(savePath + "addscore.php", form))
                 {
                     // Starts communicating with the server
                     yield return www.SendWebRequest();
@@ -181,7 +184,9 @@ namespace Scoreboards
 
         void Update()
         {
-
+            SaveScore savedScores = new SaveScore();
+            savedScores.scores = new List<ScoreboardEntryData>() { testData };
+            UpdateScores(savedScores);
         }
 
     }
