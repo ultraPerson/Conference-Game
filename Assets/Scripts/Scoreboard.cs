@@ -28,9 +28,10 @@ namespace Scoreboards
             //SaveScore savedScores = GetSavedScores();
             //UpdateScores(savedScores);
             //UpdateUI(savedScores);
+            Debug.Log("Initializing PHP");
             SaveScore savedScores = new SaveScore();
             savedScores.scores = new List<ScoreboardEntryData>() { testData };
-            UpdateScores(savedScores);
+            StartCoroutine(UpdateScores(savedScores));
         }
 
         public void AddEntry(ScoreboardEntryData scoreboardEntryData)
