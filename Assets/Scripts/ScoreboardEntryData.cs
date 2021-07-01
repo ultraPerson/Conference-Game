@@ -1,8 +1,8 @@
 ﻿using System;
+using Characters;
 
-namespace Conference.Characters
-{
-    namespace Conference.Scoreboards
+
+    namespace Scoreboards
     {
         [Serializable]
 
@@ -12,4 +12,3 @@ namespace Conference.Characters
             public int score;
         }
     }
-}

@@ -5,14 +5,16 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Mirror;
 using TMPro;
+using Scoreboards;
+using Characters;
 
-namespace Conference.Characters
+namespace Menus
 {
-    namespace Conference.Scoreboards
-    {
+    
         public class ChatBehaviour : NetworkBehaviour
         {
-      
+            
+            [SerializeField] private GameObject chatUI;
             [SerializeField] private TMP_Text chatText;
             [SerializeField] private TMP_InputField inputField;
 
@@ -33,15 +35,20 @@ namespace Conference.Characters
             {
 
                 player = GameObject.Find("Player");
+                //player.SetActive(true);
+
+                //chatUI = this.transform.GetChild(5).gameObject;
 
 
+                chatUI.SetActive(false);
                 
                 
-                
-                chatText = this.transform.GetChild(0).GetChild(0).gameObject.GetComponent<TMP_Text>();
-                inputField = this.transform.GetChild(0).GetChild(1).gameObject.GetComponent<TMP_InputField>(); //GameObject.Find("/ChatUI/InputChat").GetComponent<TMP_InputField>();
+                chatText = chatUI.transform.GetChild(0).GetChild(0).gameObject.GetComponent<TMP_Text>();
+                inputField = chatUI.transform.GetChild(0).GetChild(1).gameObject.GetComponent<TMP_InputField>(); //GameObject.Find("/ChatUI/InputChat").GetComponent<TMP_InputField>();
                 chatRT = chatText.GetComponent<RectTransform>();
                 inputRT = inputField.GetComponent<RectTransform>();
+
+                inputField.onEndEdit.AddListener(delegate {Send(inputField.text);});
                 
                 //tPVisor = player.GetComponent<TPVisor>();
                 
@@ -50,8 +57,13 @@ namespace Conference.Characters
             void Awake()
             {
 
+                if(chatUI == null)
+                {
+                    chatUI = GameObject.Find("/ChatUI(Clone)");
+                }
 
-                this.gameObject.SetActive(false);
+
+                
                 
                 
                 
@@ -61,14 +73,14 @@ namespace Conference.Characters
             {
 
                 
-                this.gameObject.SetActive(true);
+                chatUI.SetActive(true);
 
                 OnMessage += HandleNewMessage;
             }
 
             public void OpenChatUI(bool onOff)
             {
-                this.gameObject.SetActive(onOff);
+                chatUI.SetActive(onOff);
                 chatActive = onOff;
                 Debug.Log("Chat active: " + onOff);
             }
@@ -105,7 +117,7 @@ namespace Conference.Characters
             private void CmdSendMessage(string message)
             {
                 //this will be username
-                RpcHandleMessage($"[{connectionToClient.connectionId}]: {message}");
+                RpcHandleMessage($"/n[{connectionToClient.connectionId}]: {message}");
 
             }
 
@@ -114,7 +126,7 @@ namespace Conference.Characters
             private void RpcHandleMessage(string message)
             {
 
-                OnMessage?.Invoke($"/n{message}");
+                OnMessage?.Invoke($"{message}");
 
             }
 
@@ -128,4 +140,4 @@ namespace Conference.Characters
 
         }
     }
-}
+

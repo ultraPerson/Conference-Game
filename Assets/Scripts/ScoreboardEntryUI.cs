@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using System;
+using Characters;
 
-namespace Conference.Characters
-{
-    namespace Conference.Scoreboards
+
+    namespace Scoreboards
     {
 
 
@@ -22,4 +22,3 @@ namespace Conference.Characters
             }
         }
     }
-}

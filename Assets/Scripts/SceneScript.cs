@@ -27,6 +27,11 @@ public class SceneScript : MonoBehaviour
         
     }
 
+    public void NoNet()
+    {
+        SceneManager.LoadSceneAsync("Conference_Map", LoadSceneMode.Single);
+    }
+
     public void Help()
     {
         OpenExtURL("https://www.youtube.com/watch?v=dQw4w9WgXcQ");

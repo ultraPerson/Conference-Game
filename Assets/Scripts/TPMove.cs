@@ -1,11 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
+using Scoreboards;
+using Menus;
 
-namespace Conference.Characters
+namespace Characters
 {
-    namespace Conference.Scoreboards
-    {
+    
+        
         public class TPMove : MonoBehaviour
         {
             public CharacterController controller;
@@ -15,8 +18,11 @@ namespace Conference.Characters
             public float speed = 6f;
             public Vector3 gravity;
             private Vector3 moveDir;
+            private Vector3 forcePosA;
+            private Vector3 forcePosB;
             private TPVisor tPVisor;
-
+            public bool playerControl
+            {get; private set;}
 
             public float turnSmooth = 0.1f;
             float turnSmoothVel;
@@ -24,34 +30,45 @@ namespace Conference.Characters
             void Start()
             {
                 tPVisor = GetComponent<TPVisor>();
-                cam = GameObject.Find("/Main Camera").GetComponent<Transform>();
+                cam = GameObject.Find("Main Camera").GetComponent<Transform>();
+                playerControl = false;
             }
 
             // Update is called once per frame
-            void Update()
+            void FixedUpdate()
             {
 
-
-                float accelerate = 0;
-                Mathf.Clamp(accelerate, 0f, 1f);
                 float h = Input.GetAxisRaw("Horizontal");
                 float z = Input.GetAxisRaw("Vertical");
+
+                if(!tPVisor.isPaused){
+
+                float accelerate = 100f;
+                //Mathf.Clamp(accelerate, 0f, 1f);
+                
                 //float fallSpeed = 0;
                 Vector3 direction = new Vector3(h, 0f, z).normalized;
 
                 charAnim.SetFloat("motionSpeed", direction.magnitude);
+                
+
+
+            
+                
+                if (!controller.isGrounded)
+                    {
+                        gravity = new Vector3(0f, -.1f, 0f);
+                        controller.Move(gravity);
+                    }
+                    
 
                 //Debug.Log(charAnim.GetFloat("motionSpeed"));
 
-                if (!tPVisor.chatOpen)
-                {
+                
 
                     if (direction.magnitude >= 0.1f)
                     {
-                        while (accelerate < 100)
-                        {
-                            accelerate += 0.1f;
-                        }
+                        
 
                         float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
                         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVel, turnSmooth);
@@ -64,16 +81,37 @@ namespace Conference.Characters
                         controller.Move((moveDir.normalized * (speed * (accelerate / 100)) * Time.deltaTime) + (gravity * Time.deltaTime));
                     }
 
-                    if (!controller.isGrounded)
-                    {
-                        gravity = new Vector3(0f, -9.8f, 0f);
-                    }
-                    else gravity = Vector3.zero;
+                    
                 }
 
 
+             
+            // else
+            // {
+            //     while(controller.transform.position != forcePosB)
+            //     {
+            //     controller.Move(Vector3.Lerp(forcePosA, forcePosB, Time.time));
+            //     }
+            //     if(controller.transform.position == forcePosB)
+            //     {
+            //         playerControl = true;
+            //     }
+            // }
 
+            
+            }
+
+            // public void FromTheBeach(Transform a, Transform b)
+            // {
+            //     forcePosA = a.position;
+            //     forcePosB = b.position;
+            //     playerControl = false;
+            // }
+            public void TogglePC()
+            {
+                playerControl = !playerControl;
+                //charAnim.SetBool("playerControl", playerControl);
             }
         }
+        
     }
-}
