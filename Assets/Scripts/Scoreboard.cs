@@ -131,7 +131,7 @@ namespace Scoreboards
             //}
             // Do PHP instead
             // Return SaveScore (List of all ScoreBoardEntryData s)
-            return null;
+            return new SaveScore();
         }
 
         private IEnumerator UpdateScores(SaveScore saveScore)
