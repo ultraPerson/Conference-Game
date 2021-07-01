@@ -26,6 +26,7 @@ namespace Characters
 
             private bool met;
             private bool conversing;
+            bool sitting;
            
             // Start is called before the first frame update
             void Start()
@@ -57,6 +58,11 @@ namespace Characters
                 {
                 conversing = convoPartner.animPlay;
                 Debug.Log("conversing set to " + conversing);
+                }
+
+                if(sitting != convoPartner.sitting)
+                {
+                    sitting = convoPartner.sitting;
                 }
 
                 animator.SetBool("Met", met);

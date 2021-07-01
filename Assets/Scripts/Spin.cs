@@ -30,7 +30,7 @@ public class Spin : MonoBehaviour
         timeOffset = offset.Next(0,1001);
 
         int[] possibilities = {-1, 1};
-        upDown = possibilities[offset.Next(-1, 2)];
+        upDown = possibilities[offset.Next(0, 1)];
     
         
         StartCoroutine(HoldOnASec());

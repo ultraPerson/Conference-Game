@@ -39,6 +39,7 @@ namespace Characters
                 get { return conversing; }
                 private set { conversing = value; }
             }
+            public bool sitting = false;
             //public GameObject vision;
 
             //private bool seesYou = false;
