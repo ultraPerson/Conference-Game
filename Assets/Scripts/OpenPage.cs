@@ -38,10 +38,17 @@ using Scoreboards;
             public void GoToURL()
             {
 
-                OpenExtURL(destination);
+                StartCoroutine(ShowOff());
                 newLog = false;
 
 
+
+            }
+
+            IEnumerator ShowOff()
+            {
+                yield return new WaitForSecondsRealtime(0.2f);
+                OpenExtURL(destination);
 
             }
 

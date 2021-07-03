@@ -123,6 +123,8 @@ using Characters;
                     return JsonUtility.FromJson<SaveScore>(json);
                 }
 
+                return new SaveScore();
+
             }
 
             private void UpdateScores(SaveScore saveScore)

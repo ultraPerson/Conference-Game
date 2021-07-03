@@ -74,6 +74,7 @@ namespace Characters
 
             void Start(){
 
+                Debug.Log(nPCName + "sitting: " + sitting);
                 thisCam = transform.GetChild(0).GetComponent<Camera>();
                 mainCam = Camera.main;
                 mainCanvas = Camera.main.transform.GetChild(0).GetComponent<Canvas>();
