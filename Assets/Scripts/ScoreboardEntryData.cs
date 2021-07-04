@@ -8,7 +8,6 @@ using Characters;
 
         public struct ScoreboardEntryData
         {
-            public string user;
             public string name;
             public int score;
         }

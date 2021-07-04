@@ -20,74 +20,16 @@ namespace Scoreboards
         [Header("Test")]
         [SerializeField] public ScoreboardEntryData testData = new ScoreboardEntryData();
 
-        private GameObject[] allScores;
-        private string savePath = "https://solar-power-tech.com/game/GameTest/PHPTest/PHP/";  
+        public SaveScore allScores;
+        private string savePath = "https://solar-power-tech.com/game/GameTest/PHP/";  
 
-        private void Start()
+        public void AddEntry(ScoreboardEntryData data)
         {
-            //SaveScore savedScores = GetSavedScores();
-            //UpdateScores(savedScores);
-            //UpdateUI(savedScores);
-            Debug.Log("Initializing PHP");
-            SaveScore savedScores = new SaveScore();
-            savedScores.scores = new List<ScoreboardEntryData>() { testData };
-            StartCoroutine(UpdateScores(savedScores));
+            SaveScore savedScore = new SaveScore();
+            savedScore.scores = new List<ScoreboardEntryData>() { data };
+            StartCoroutine(UpdateScores(savedScore));
         }
-
-        public void AddEntry(ScoreboardEntryData scoreboardEntryData)
-        {
-            if (savePath == null)
-            {
-                savePath = "/highscores.json";
-            }
-            SaveScore savedScores = GetSavedScores();
-            bool scoreAdded = false;
-
-
-
-            //scoreboard cleaner
-            for (int i = 0; i < savedScores.scores.Count; i++)
-            {
-
-
-
-                if (scoreboardEntryData.name == savedScores.scores[i].name && scoreboardEntryData.score > savedScores.scores[i].score)
-                {
-                    savedScores.scores.Remove(savedScores.scores[i]);
-
-                    //savedScores.scores.Insert(i, scoreboardEntryData);
-                    //scoreAdded = true;
-
-
-                }
-            }
-
-            for (int i = 0; i < savedScores.scores.Count; i++)
-            {
-                if (scoreboardEntryData.score > savedScores.scores[i].score)
-                {
-                    savedScores.scores.Insert(i, scoreboardEntryData);
-                    scoreAdded = true;
-                    break;
-                }
-            }
-
-            if (!scoreAdded && savedScores.scores.Count < maxEntries)
-            {
-                savedScores.scores.Add(scoreboardEntryData);
-            }
-            if (savedScores.scores.Count > maxEntries)
-            {
-                savedScores.scores.RemoveRange(maxEntries, savedScores.scores.Count - maxEntries);
-
-            }
-
-
-
-            UpdateUI(savedScores);
-
-            UpdateScores(savedScores);
-        }
+        
 
         private void UpdateUI(SaveScore savedScores)
         {
@@ -111,45 +53,53 @@ namespace Scoreboards
         }
 
         // Stores the location of the PHP scripts to be used by this build
-        private string phpDirectory = "https://solar-power-tech.com/game/GameTest/Build/PHP/";
-        private SaveScore GetSavedScores()
+        private IEnumerator GetSavedScores()
         {
-            //if (!File.Exists(savePath))
-            //{
-            //    File.Create(savePath).Dispose();
+            string errorMessage = "";
+            SaveScore output = new SaveScore();
+            using (UnityWebRequest www = UnityWebRequest.Get(savePath + "getscore.php"))
+            {
+                yield return www.SendWebRequest();
 
-            //    return new SaveScore();
-            //}
-
-            //using (StreamReader stream = new StreamReader(savePath))
-            //{
-            //    string json = stream.ReadToEnd();
-
-
-
-            //    return JsonUtility.FromJson<SaveScore>(json);
-            //}
-            // Do PHP instead
-            // Return SaveScore (List of all ScoreBoardEntryData s)
-            return new SaveScore();
+                if (www.isNetworkError)
+                {
+                    errorMessage = www.error;
+                }
+                else
+                {
+                    string responseText = www.downloadHandler.text;
+                    Debug.LogError(responseText);
+                    string[] allRows;
+                    if(!responseText.StartsWith("Success"))
+                    {
+                        errorMessage = responseText;
+                    }
+                    else
+                    {
+                        allRows = responseText.Split("|".ToCharArray());
+                        foreach(string row in allRows)
+                        {
+                            if(row.StartsWith("Success"))
+                            {
+                                continue;
+                            }
+                            string[] columns = row.Split(",".ToCharArray());
+                            ScoreboardEntryData newEntry = new ScoreboardEntryData() { name = columns[0], score = int.Parse(columns[1]) };
+                            output.scores.Add(newEntry);
+                        }
+                        allScores = output;
+                    }
+                }
+            }
         }
 
         private IEnumerator UpdateScores(SaveScore saveScore)
         {
-            Debug.Log("Trying to write to database");
-            //using (StreamWriter stream = new StreamWriter(savePath))
-            //{
-            //    string json = JsonUtility.ToJson(saveScore, true);
-            //    stream.Write(json);
-            //}
-            // Do PHP instead
-            // Saves new scores (Overwrites registers linked to same ScoreboardEntryData.user (UserID);
             foreach (ScoreboardEntryData data in saveScore.scores)
             {
                 string errorMessage = "";
 
                 WWWForm form = new WWWForm();
-                form.AddField("user_id", data.user);
                 form.AddField("username", data.name);
                 form.AddField("score", data.score);
                 // Tries to post a form using PHP
@@ -169,25 +119,17 @@ namespace Scoreboards
                         string responseText = www.downloadHandler.text;
 
                         // If not succesfully posted data
-                        if(!responseText.StartsWith("Success"))
+                        if (!responseText.StartsWith("Success"))
                         {
                             errorMessage = responseText;
                         }
                     }
-                    if(errorMessage != "")
+                    if (errorMessage != "")
                     {
                         Debug.LogError(errorMessage);
                     }
                 }
             }
-        }
-
-
-        void Update()
-        {
-            SaveScore savedScores = new SaveScore();
-            savedScores.scores = new List<ScoreboardEntryData>() { testData };
-            UpdateScores(savedScores);
         }
 
     }
