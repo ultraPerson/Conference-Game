@@ -91,6 +91,7 @@ namespace Scoreboards
                     }
                 }
             }
+            UpdateUI(allScores);
         }
 
         private IEnumerator UpdateScores(SaveScore saveScore)
@@ -130,6 +131,7 @@ namespace Scoreboards
                     }
                 }
             }
+            StartCoroutine(GetSavedScores());
         }
 
     }
