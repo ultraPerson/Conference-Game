@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine.UI;
@@ -67,6 +67,7 @@ namespace Characters
 
                 animator.SetBool("Met", met);
                 animator.SetBool("Conversation", conversing);
+                animator.SetBool("Sitting", sitting);
 
                /* if(conversing)
                 {

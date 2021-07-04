@@ -112,6 +112,7 @@ namespace Characters
             {get; private set;}
             
             public bool isPaused = false;
+            private bool singlePlayer = false;
 
             
             Scoreboard scoreboard;
@@ -127,7 +128,7 @@ namespace Characters
 
                 if(string.IsNullOrEmpty(playerName))
                 {
-                    playerName = "New Player";
+                    playerName = "Your ";
                 }
 
                 //GameObject.Find("NetworkManager").GetComponent<NetworkManagerHUD>().offsetX -= 300;
@@ -166,7 +167,7 @@ namespace Characters
                 scoreHolder = pBG.transform.GetChild(0).gameObject;
                 //maxDist = Mathf.Infinity;
                 layerMask = ~layerMask;
-                playerName = "New Player";
+                
                 scoreData.name = playerName;
                 scoreData.score = points;
 
@@ -193,14 +194,15 @@ namespace Characters
                 tBGTrans.position = textPos;
                 
                 pBGTrans.position = pointPos;
-                pTextTrans.position = pBGTrans.position;
+                pTextTrans.position = new Vector2(screenW + 10, screenH - 5);
                 pTextTrans.sizeDelta = new Vector2(pBGTrans.sizeDelta.x/2, pBGTrans.sizeDelta.y / 8);
-                scoreHolder.transform.position = new Vector2(pointPos.x, pointPos.y - pBGTrans.sizeDelta.y);
+                //scoreHolder.transform.position = new Vector2(pointPos.x, pointPos.y - pBGTrans.sizeDelta.y);
+                scoreHolder.transform.position = new Vector2(10000, 10000);//sent away for single player experience
                 pointPos = new Vector2(screenW, screenH);
 
 
                 tBGTrans.position = textPos;
-                pBGTrans.sizeDelta = new Vector2(screenW / 6, screenH / 2);
+                pBGTrans.sizeDelta = new Vector2(screenW / 6, screenH / 7.2f);
                 tBGTrans.sizeDelta = new Vector2(screenW, screenH / 3);
                 vTextTrans.sizeDelta = new Vector2(screenW, 124.693f);
                 vTextTrans.position = new Vector2(screenW/2, 62.5f);
@@ -230,7 +232,7 @@ namespace Characters
                 
                 
 
-                vPoints.text = playerName + " score: " + points.ToString();
+                vPoints.text = playerName + " score: " + System.Environment.NewLine + points.ToString();
 
                 if(scoreData.score < points)
                 {
