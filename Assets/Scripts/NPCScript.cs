@@ -157,11 +157,17 @@ namespace Characters
                     if(dialoguePos >= dialogue.Length - 1)
                     {
                         met = true;
-                        vScript.points++;
+                        
                     }
                     try
                     {
                         dialogueBoxText.text = dialogue[ChooseDialogue(dialoguePos)];
+                        if(!met)
+                        {
+                        vScript.points++;
+                        vScript.scoreboard.AddEntry(vScript.scoreData);
+                        }
+                        
                     }
                     catch(IndexOutOfRangeException e)
                     {
@@ -257,6 +263,7 @@ namespace Characters
                     //Debug.Log(qLevel);
                     
                     vScript.points++;
+                    vScript.scoreboard.AddEntry(vScript.scoreData);
                     dialogueBoxText.text = $"Correct ansewer: {ans.ToString()}. Excellent!\n";
                     
                     interfaceHelp.text = "Enter/Return";
@@ -295,6 +302,7 @@ namespace Characters
                 //quizing = false;
                 quizCanvas.CloseNotification();
                 vScript.PerspectiveChange(true);
+                vScript.scoreboard.AddEntry(vScript.scoreData);
                 //face.GetComponent<SpriteRenderer>().sprite = faces[0];
             }
 

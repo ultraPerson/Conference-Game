@@ -7,6 +7,7 @@ using Cinemachine;
 using Menus;
 using Michsky.UI.ModernUIPack;
 using Characters;
+using Scoreboards;
 
 namespace States
 {
@@ -18,10 +19,16 @@ public class StateMachine : MonoBehaviour
     string currentState;
     //[SerializeField] private GameObject player;
     private GameObject pauseMenu;
+    [SerializeField]
+    private GameObject vCanvas;
     [SerializeField]private CinemachineFreeLook camControl;
     [SerializeField]private CinemachineDollyCart dolly1;
+    
     private Transform camMenu;
     private Transform camGame;
+    private ScoreboardEntryData scoreData;
+
+
 
     private bool readyFreddy = false;
 
@@ -29,11 +36,14 @@ public class StateMachine : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        pauseMenu = GameObject.Find("PauseCanvas");
+        pauseMenu.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(4).gameObject.SetActive(true);
+        pauseMenu.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(4).GetComponent<Button>().onClick.AddListener(delegate {GameStart();});
+        pauseMenu.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(1).gameObject.SetActive(false);
         currentState = "Menu";
         
         //transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
-        //player = GameObject.Find("Player(Clone)");
+        //player = GameObject.Find("Player");
         
         GetComponent<PauseScript>().OpenPause();
         //dolly1 = GameObject.Find("DollyCart1").GetComponent<CinemachineDollyCart>();
@@ -57,10 +67,8 @@ public class StateMachine : MonoBehaviour
         
         dolly1.m_Speed = 0;
 
-        pauseMenu = GameObject.Find("PauseCanvas");
-        pauseMenu.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(4).gameObject.SetActive(true);
-        pauseMenu.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(4).GetComponent<Button>().onClick.AddListener(delegate {GameStart();});
-        pauseMenu.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(1).gameObject.SetActive(false);
+        
+        
         _begin += GameStart;
         
 
@@ -77,6 +85,8 @@ public class StateMachine : MonoBehaviour
         //GetComponent<TPMove>().FromTheBeach(camMenu, camGame);
         camControl.m_LookAt = GetComponent<Transform>().GetChild(1);
         //transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
+        scoreData = GetComponent<TPVisor>().scoreData;
+        vCanvas.GetComponent<Scoreboard>().AddEntry(scoreData);
         
 
     }
@@ -106,6 +116,7 @@ public class StateMachine : MonoBehaviour
             GetComponent<TPMove>().TogglePC();
             }
             readyFreddy = true;
+            
         }
     }
 }

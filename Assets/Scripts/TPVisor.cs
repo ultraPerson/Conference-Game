@@ -54,6 +54,7 @@ namespace Characters
             //image game object for PBG
             private GameObject pBG;
             public int points = 0;
+            private int oldPoints = 0;
             public string playerName;
 
             private int layerMask = 1 << 8;
@@ -115,8 +116,10 @@ namespace Characters
             private bool singlePlayer = false;
 
             
-            Scoreboard scoreboard;
-            ScoreboardEntryData scoreData;
+            public Scoreboard scoreboard;
+            public ScoreboardEntryData scoreData
+            {get {return _scoreData;}}
+            public ScoreboardEntryData _scoreData;
 
             // Start is called before the first frame update
             void Start()
@@ -128,7 +131,7 @@ namespace Characters
 
                 if(string.IsNullOrEmpty(playerName))
                 {
-                    playerName = "Your ";
+                    playerName = scoreData.name;
                 }
 
                 //GameObject.Find("NetworkManager").GetComponent<NetworkManagerHUD>().offsetX -= 300;
@@ -168,12 +171,12 @@ namespace Characters
                 //maxDist = Mathf.Infinity;
                 layerMask = ~layerMask;
                 
-                scoreData.name = playerName;
-                scoreData.score = points;
+                _scoreData.name = playerName;
+                _scoreData.score = points;
 
 
                 scoreboard = playerCanvas.GetComponent<Scoreboard>();
-                scoreboard.AddEntry(scoreData);
+                //scoreboard.AddEntry(_scoreData);
                 tBGTrans = tBG.GetComponent<RectTransform>();
                 pBGTrans = pBG.GetComponent<RectTransform>();
                 vTextTrans = textScrollArea.GetComponent<RectTransform>();
@@ -194,7 +197,7 @@ namespace Characters
                 tBGTrans.position = textPos;
                 
                 pBGTrans.position = pointPos;
-                pTextTrans.position = new Vector2(screenW + 10, screenH - 5);
+                pTextTrans.position = new Vector2(screenW + 10, screenH - 5);//point text poisition
                 pTextTrans.sizeDelta = new Vector2(pBGTrans.sizeDelta.x/2, pBGTrans.sizeDelta.y / 8);
                 //scoreHolder.transform.position = new Vector2(pointPos.x, pointPos.y - pBGTrans.sizeDelta.y);
                 scoreHolder.transform.position = new Vector2(10000, 10000);//sent away for single player experience
@@ -202,6 +205,7 @@ namespace Characters
 
 
                 tBGTrans.position = textPos;
+                //pBGTrans.sizeDelta = new Vector2(screenW / 6, screenH / 3);//point bagckground size
                 pBGTrans.sizeDelta = new Vector2(screenW / 6, screenH / 7.2f);
                 tBGTrans.sizeDelta = new Vector2(screenW, screenH / 3);
                 vTextTrans.sizeDelta = new Vector2(screenW, 124.693f);
@@ -228,15 +232,21 @@ namespace Characters
                 
 
                 isPaused = pauseScript.isPaused;
-                
-                
-                
 
-                vPoints.text = playerName + " score: " + System.Environment.NewLine + points.ToString();
-
-                if(scoreData.score < points)
+                if(oldPoints != points)
                 {
-                scoreData.score = points;
+                    scoreboard.AddEntry(_scoreData);
+                    oldPoints = points;
+                }
+                
+                
+                points = (int)Mathf.Clamp(points, 0, Mathf.Infinity);
+                //int editPoints = points - 1;
+                vPoints.text = "Your score: " + System.Environment.NewLine + points.ToString();
+
+                if(_scoreData.score < points)
+                {
+                _scoreData.score = points;
                 }
                 lookAt = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
@@ -526,7 +536,7 @@ namespace Characters
                         what.GetComponent<OpenPage>().newLog = false;
                         what.GetComponent<OpenPage>().GoToURL();
                         points++;
-                        scoreboard.AddEntry(scoreData);
+                        //scoreboard.AddEntry(_scoreData);
                         
                     }
                     else if (what.tag == "NPC")

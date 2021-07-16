@@ -17,8 +17,8 @@ namespace Scoreboards
         [SerializeField] public RectTransform highscoresHolderTransform = null;
         [SerializeField] public GameObject scoreboardEntryObj = null;
 
-        [Header("Test")]
-        [SerializeField] public ScoreboardEntryData testData = new ScoreboardEntryData();
+        
+        [SerializeField] public ScoreboardEntryData playerData;
 
         public SaveScore allScores;
         private string savePath = "https://solar-power-tech.com/game/GameTest/PHP/";  
@@ -29,6 +29,8 @@ namespace Scoreboards
             savedScore.scores = new List<ScoreboardEntryData>() { data };
             StartCoroutine(UpdateScores(savedScore));
         }
+
+      
         
 
         private void UpdateUI(SaveScore savedScores)
